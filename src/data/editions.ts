@@ -1,0 +1,351 @@
+/**
+ * ────────────────────────────────────────────────────────────────────────
+ *  DAILY EDITABLE FILE — this is the only file you touch to publish picks.
+ * ────────────────────────────────────────────────────────────────────────
+ *
+ *  To publish a new day:
+ *    1. Copy the top edition object.
+ *    2. Change `date` to the new YYYY-MM-DD.
+ *    3. Swap in the day's matches. Keep every `id` unique (prefix with the date).
+ *    4. Leave `status: "pending"` — update to "won" / "lost" / "void" once games finish.
+ *
+ *  The homepage always renders the newest edition whose date is not in the
+ *  future (see getCurrentEdition), so you can stage tomorrow's card early.
+ *
+ *  Fields:  free[]      → shown to everyone
+ *           vip[]       → gated behind VIP membership
+ *           feature     → the free "Daily 2-Odds Feature" slip
+ *           vipFeature  → optional VIP banker/accumulator slip
+ */
+
+import type { Edition } from "@/lib/predictions";
+
+export const editions: Edition[] = [
+  // ── 2026-09-01 ─────────────────────────────────────────────────────────
+  {
+    date: "2026-09-01",
+    headline: "Two low-variance markets combine for the 2-odds banker.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-09-01-epl-avl-tot",
+          league: "Premier League",
+          country: "England",
+          kickoff: "2026-09-01T14:00:00Z",
+          home: "Aston Villa",
+          away: "Tottenham",
+          market: "Over 1.5 Goals",
+          selection: "Yes",
+          odds: 1.4,
+          confidence: 82,
+          status: "pending",
+          analysis:
+            "Both sides average over 2.6 goals per match this season and have met the Over 1.5 line in 9 of their last 10 outings.",
+        },
+        {
+          id: "2026-09-01-seriea-int-udi",
+          league: "Serie A",
+          country: "Italy",
+          kickoff: "2026-09-01T18:45:00Z",
+          home: "Inter",
+          away: "Udinese",
+          market: "Double Chance",
+          selection: "1X",
+          odds: 1.43,
+          confidence: 79,
+          status: "pending",
+          analysis:
+            "Inter are unbeaten in 14 home league games. Udinese have won once away from home in their last 12.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-09-01-laliga-rma-get",
+        league: "La Liga",
+        country: "Spain",
+        kickoff: "2026-09-01T19:00:00Z",
+        home: "Real Madrid",
+        away: "Getafe",
+        market: "Handicap",
+        selection: "Real Madrid -1",
+        odds: 1.72,
+        confidence: 74,
+        status: "pending",
+        analysis:
+          "Madrid have covered the -1 handicap in 7 of 9 home fixtures. Getafe arrive with two defenders suspended.",
+      },
+      {
+        id: "2026-09-01-bundesliga-b04-fcs",
+        league: "Bundesliga",
+        country: "Germany",
+        kickoff: "2026-09-01T16:30:00Z",
+        home: "Bayer Leverkusen",
+        away: "St. Pauli",
+        market: "Over 2.5 Goals",
+        selection: "Yes",
+        odds: 1.55,
+        confidence: 77,
+        status: "pending",
+        analysis:
+          "Leverkusen games have gone over 2.5 in 8 straight. St. Pauli concede an xGA of 1.9 on the road.",
+      },
+      {
+        id: "2026-09-01-ligue1-psg-len",
+        league: "Ligue 1",
+        country: "France",
+        kickoff: "2026-09-01T19:45:00Z",
+        home: "Paris Saint-Germain",
+        away: "Lens",
+        market: "Both Teams to Score",
+        selection: "No",
+        odds: 1.8,
+        confidence: 68,
+        status: "pending",
+        analysis:
+          "PSG have kept 6 clean sheets in 8 at home. Lens have failed to score in 4 of their last 6 away trips.",
+      },
+      {
+        id: "2026-09-01-epl-new-bha",
+        league: "Premier League",
+        country: "England",
+        kickoff: "2026-09-01T14:00:00Z",
+        home: "Newcastle",
+        away: "Brighton",
+        market: "Draw No Bet",
+        selection: "Newcastle",
+        odds: 1.66,
+        confidence: 71,
+        status: "pending",
+        analysis:
+          "Newcastle's home xG differential is +1.3 per game. Brighton are missing their first-choice keeper and top scorer.",
+      },
+    ],
+    vip: [
+      {
+        id: "2026-09-01-eredivisie-aja-utr",
+        league: "Eredivisie",
+        country: "Netherlands",
+        kickoff: "2026-09-01T17:00:00Z",
+        home: "Ajax",
+        away: "Utrecht",
+        market: "Over 3.5 Goals",
+        selection: "Yes",
+        odds: 2.1,
+        confidence: 61,
+        status: "pending",
+        analysis:
+          "Ajax home matches average 4.1 goals. Utrecht have shipped 3+ in each of their last three away games.",
+      },
+      {
+        id: "2026-09-01-primeira-slb-spo",
+        league: "Primeira Liga",
+        country: "Portugal",
+        kickoff: "2026-09-01T20:15:00Z",
+        home: "Benfica",
+        away: "Sporting CP",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.5,
+        confidence: 73,
+        status: "pending",
+        analysis:
+          "Benfica are unbeaten at home against Sporting in 6 derbies. Expect a cautious, low-tempo first half.",
+      },
+      {
+        id: "2026-09-01-epl-ars-whu",
+        league: "Premier League",
+        country: "England",
+        kickoff: "2026-09-01T16:30:00Z",
+        home: "Arsenal",
+        away: "West Ham",
+        market: "Team Total",
+        selection: "Arsenal Over 1.5",
+        odds: 1.57,
+        confidence: 76,
+        status: "pending",
+        analysis:
+          "Arsenal have scored 2+ in 11 of 13 home league games. West Ham concede the 3rd-most shots on target away.",
+      },
+    ],
+    vipFeature: {
+      title: "VIP Banker Builder",
+      stake: 2000,
+      selections: [
+        {
+          id: "2026-09-01-vipf-int-udi",
+          league: "Serie A",
+          country: "Italy",
+          kickoff: "2026-09-01T18:45:00Z",
+          home: "Inter",
+          away: "Udinese",
+          market: "Match Result & Over 1.5",
+          selection: "Inter & Over 1.5",
+          odds: 1.62,
+          confidence: 72,
+          status: "pending",
+          analysis:
+            "Inter win-to-nil or comfortably in most home models; the Over 1.5 adds margin with little downside.",
+        },
+        {
+          id: "2026-09-01-vipf-ars-whu",
+          league: "Premier League",
+          country: "England",
+          kickoff: "2026-09-01T16:30:00Z",
+          home: "Arsenal",
+          away: "West Ham",
+          market: "Double Chance",
+          selection: "1X",
+          odds: 1.18,
+          confidence: 88,
+          status: "pending",
+          analysis: "Pure banker leg — Arsenal unbeaten at home in 15.",
+        },
+        {
+          id: "2026-09-01-vipf-b04-fcs",
+          league: "Bundesliga",
+          country: "Germany",
+          kickoff: "2026-09-01T16:30:00Z",
+          home: "Bayer Leverkusen",
+          away: "St. Pauli",
+          market: "Over 1.5 Goals",
+          selection: "Yes",
+          odds: 1.14,
+          confidence: 90,
+          status: "pending",
+          analysis: "Leverkusen have hit Over 1.5 in 18 of 19 home games.",
+        },
+      ],
+    },
+  },
+
+  // ── 2026-08-31 (settled) ──────────────────────────────────────────────
+  {
+    date: "2026-08-31",
+    headline: "Feature landed at 2.04; four of five free picks came in.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-08-31-epl-liv-bou",
+          league: "Premier League",
+          country: "England",
+          kickoff: "2026-08-31T13:00:00Z",
+          home: "Liverpool",
+          away: "Bournemouth",
+          market: "Match Result",
+          selection: "Liverpool",
+          odds: 1.36,
+          confidence: 85,
+          status: "won",
+          analysis: "Liverpool won 3-0; never troubled at Anfield.",
+        },
+        {
+          id: "2026-08-31-seriea-nap-par",
+          league: "Serie A",
+          country: "Italy",
+          kickoff: "2026-08-31T18:45:00Z",
+          home: "Napoli",
+          away: "Parma",
+          market: "Over 1.5 Goals",
+          selection: "Yes",
+          odds: 1.5,
+          confidence: 80,
+          status: "won",
+          analysis: "2-1 to Napoli; over cleared by half-time.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-08-31-laliga-atm-ala",
+        league: "La Liga",
+        country: "Spain",
+        kickoff: "2026-08-31T17:30:00Z",
+        home: "Atletico Madrid",
+        away: "Alaves",
+        market: "Draw No Bet",
+        selection: "Atletico Madrid",
+        odds: 1.3,
+        confidence: 83,
+        status: "won",
+        analysis: "1-0 Atletico; comfortable if unspectacular.",
+      },
+      {
+        id: "2026-08-31-bundesliga-rbl-wob",
+        league: "Bundesliga",
+        country: "Germany",
+        kickoff: "2026-08-31T15:30:00Z",
+        home: "RB Leipzig",
+        away: "Wolfsburg",
+        market: "Over 2.5 Goals",
+        selection: "Yes",
+        odds: 1.6,
+        confidence: 74,
+        status: "won",
+        analysis: "3-2 thriller.",
+      },
+      {
+        id: "2026-08-31-epl-che-eve",
+        league: "Premier League",
+        country: "England",
+        kickoff: "2026-08-31T15:30:00Z",
+        home: "Chelsea",
+        away: "Everton",
+        market: "Both Teams to Score",
+        selection: "No",
+        odds: 1.7,
+        confidence: 66,
+        status: "lost",
+        analysis: "1-1; Everton nicked a late equaliser.",
+      },
+    ],
+    vip: [
+      {
+        id: "2026-08-31-ligue1-mon-nic",
+        league: "Ligue 1",
+        country: "France",
+        kickoff: "2026-08-31T19:45:00Z",
+        home: "Monaco",
+        away: "Nice",
+        market: "Handicap",
+        selection: "Monaco -1",
+        odds: 2.0,
+        confidence: 62,
+        status: "won",
+        analysis: "3-1 Monaco.",
+      },
+      {
+        id: "2026-08-31-eredivisie-psv-azl",
+        league: "Eredivisie",
+        country: "Netherlands",
+        kickoff: "2026-08-31T13:30:00Z",
+        home: "PSV",
+        away: "AZ Alkmaar",
+        market: "Over 3.5 Goals",
+        selection: "Yes",
+        odds: 1.9,
+        confidence: 64,
+        status: "won",
+        analysis: "4-1 PSV.",
+      },
+      {
+        id: "2026-08-31-primeira-fcp-bra",
+        league: "Primeira Liga",
+        country: "Portugal",
+        kickoff: "2026-08-31T20:30:00Z",
+        home: "Porto",
+        away: "Braga",
+        market: "Match Result",
+        selection: "Porto",
+        odds: 1.75,
+        confidence: 70,
+        status: "lost",
+        analysis: "1-2; Braga counter-attacked well.",
+      },
+    ],
+  },
+];
