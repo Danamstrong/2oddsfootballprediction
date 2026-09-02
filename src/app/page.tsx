@@ -8,10 +8,12 @@ import {
   getEditions,
   performance,
 } from "@/lib/predictions";
+import { readVipAccess } from "@/lib/vip-access";
 
-export default function Home() {
+export default async function Home() {
   const edition = getCurrentEdition();
   const record = performance(getEditions());
+  const vipAccess = await readVipAccess();
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -69,38 +71,55 @@ export default function Home() {
           </div>
         </section>
 
-        {/* VIP picks — locked teaser */}
+        {/* VIP picks — unlocked for members, locked teaser otherwise */}
         {edition.vip.length > 0 && (
           <section aria-labelledby="vip-picks-heading" className="flex flex-col gap-6">
-            <h2
-              id="vip-picks-heading"
-              className="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50"
-            >
-              VIP picks
-            </h2>
-            <div className="relative">
-              <div
-                aria-hidden
-                className="pointer-events-none grid select-none gap-5 blur-sm sm:grid-cols-2 lg:grid-cols-3"
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <h2
+                id="vip-picks-heading"
+                className="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50"
               >
+                VIP picks
+              </h2>
+              {vipAccess && (
+                <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                  <ShieldCheck className="size-3.5" aria-hidden />
+                  VIP active
+                </p>
+              )}
+            </div>
+
+            {vipAccess ? (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {edition.vip.map((pick) => (
                   <PredictionCard key={pick.id} pick={pick} />
                 ))}
               </div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/60 text-center backdrop-blur-[2px] dark:bg-black/60">
-                <Lock className="size-6 text-emerald-500" aria-hidden />
-                <p className="max-w-xs text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {edition.vip.length} VIP picks
-                  {edition.vipFeature ? " + VIP banker builder" : ""} locked.
-                </p>
-                <Link
-                  href="#vip-heading"
-                  className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
+            ) : (
+              <div className="relative">
+                <div
+                  aria-hidden
+                  className="pointer-events-none grid select-none gap-5 blur-sm sm:grid-cols-2 lg:grid-cols-3"
                 >
-                  Unlock with VIP
-                </Link>
+                  {edition.vip.map((pick) => (
+                    <PredictionCard key={pick.id} pick={pick} />
+                  ))}
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/60 text-center backdrop-blur-[2px] dark:bg-black/60">
+                  <Lock className="size-6 text-emerald-500" aria-hidden />
+                  <p className="max-w-xs text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {edition.vip.length} VIP picks
+                    {edition.vipFeature ? " + VIP banker builder" : ""} locked.
+                  </p>
+                  <Link
+                    href="#vip-heading"
+                    className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
+                  >
+                    Unlock with VIP
+                  </Link>
+                </div>
               </div>
-            </div>
+            )}
           </section>
         )}
 

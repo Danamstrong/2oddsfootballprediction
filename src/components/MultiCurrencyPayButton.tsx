@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { Check, ChevronDown, Crown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -72,6 +73,7 @@ export function MultiCurrencyPayButton({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
+  const router = useRouter();
   const menuId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -159,6 +161,9 @@ export function MultiCurrencyPayButton({
               setNotice(
                 "Payment verified — your VIP access is active. Check your email for the login link.",
               );
+              // The verify response set the VIP cookie; re-render server
+              // components so the locked picks unblur immediately.
+              router.refresh();
               onVerified?.({
                 txRef: response.tx_ref,
                 transactionId: response.transaction_id!,
@@ -182,7 +187,7 @@ export function MultiCurrencyPayButton({
       },
       onclose: () => setPending(false),
     });
-  }, [email, scriptReady, currency, tierId, title, description, onVerified]);
+  }, [email, scriptReady, currency, tierId, title, description, onVerified, router]);
 
   return (
     <div className={cn("mx-auto w-full max-w-sm flex-col gap-4", className)}>

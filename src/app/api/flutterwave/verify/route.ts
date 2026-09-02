@@ -1,12 +1,30 @@
 import { NextResponse } from "next/server";
 import { vipTiers, type VipTier } from "@/lib/predictions";
 import { getCurrency, type CurrencyOption } from "@/data/currencies";
+import { VIP_COOKIE, encodeVipAccess, vipCookieOptions } from "@/lib/vip-access";
 
 // Uses FLW_SECRET_KEY (server only) — never runs on the edge/client.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_CURRENCY = "NGN";
+
+/**
+ * Amounts accepted for live end-to-end testing in addition to the real
+ * per-currency prices. Keep this empty in production.
+ */
+const TEST_AMOUNTS: Record<string, number[]> = {
+  NGN: [100],
+};
+
+function isAcceptedAmount(
+  currencyCode: string,
+  paid: number,
+  expected: number,
+): boolean {
+  if (paid >= expected) return true;
+  return (TEST_AMOUNTS[currencyCode] ?? []).includes(paid);
+}
 const verifyUrl = (id: string) =>
   `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(id)}/verify`;
 
@@ -141,7 +159,8 @@ export async function POST(req: Request) {
       : undefined;
   if (
     requestedAmount != null &&
-    (!Number.isFinite(requestedAmount) || requestedAmount !== expectedAmount)
+    (!Number.isFinite(requestedAmount) ||
+      !isAcceptedAmount(currency.code, requestedAmount, expectedAmount))
   ) {
     problems.push(
       `requested amount ${body.amount} does not match the published ${currency.code} price ${expectedAmount}`,
@@ -182,9 +201,9 @@ export async function POST(req: Request) {
   if ((tx.currency ?? "").toUpperCase() !== currency.code) {
     problems.push(`currency "${tx.currency}", expected "${currency.code}"`);
   }
-  if (Number(tx.amount) < expectedAmount) {
+  if (!isAcceptedAmount(currency.code, Number(tx.amount), expectedAmount)) {
     problems.push(
-      `amount ${tx.amount} is below the ${tier.name} ${currency.code} price ${expectedAmount}`,
+      `amount ${tx.amount} is below the ${tier.name} ${currency.code} price ${expectedAmount} and is not an accepted test amount`,
     );
   }
   if (body.tx_ref && tx.tx_ref !== body.tx_ref) {
@@ -200,7 +219,8 @@ export async function POST(req: Request) {
   //     expiresAt: now + tier period } in your database.
   //  3. Trigger the "VIP access activated" email.
 
-  return NextResponse.json({
+  // --- Grant VIP access to this browser so the picks unblur immediately.
+  const res = NextResponse.json({
     status: "success",
     message: "Payment verified.",
     membership: {
@@ -216,4 +236,14 @@ export async function POST(req: Request) {
       paidAt: tx.created_at ?? null,
     },
   });
+  res.cookies.set(
+    VIP_COOKIE,
+    encodeVipAccess({
+      tier: tier.id,
+      email: tx.customer?.email ?? null,
+      txRef: tx.tx_ref,
+    }),
+    vipCookieOptions(),
+  );
+  return res;
 }
