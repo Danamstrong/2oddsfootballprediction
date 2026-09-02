@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ShieldCheck, BarChart3, Bell, Lock } from "lucide-react";
+import { ShieldCheck, BarChart3, Bell, Lock, Crown } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
 import { PredictionCard } from "@/components/PredictionCard";
-import { VipPricing } from "@/components/VipPricing";
+import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import {
   getCurrentEdition,
   getEditions,
@@ -104,8 +104,30 @@ export default function Home() {
           </section>
         )}
 
-        {/* VIP membership pricing */}
-        <VipPricing />
+        {/* VIP membership checkout — multi-currency */}
+        <section
+          aria-labelledby="vip-heading"
+          className="flex flex-col items-center gap-8"
+        >
+          <div className="text-center">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+              <Crown className="size-3.5" aria-hidden />
+              VIP Membership
+            </p>
+            <h2
+              id="vip-heading"
+              className="mt-3 text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50"
+            >
+              Unlock every premium pick
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
+              Full VIP feed, staking plans, and early team news. Pick your country
+              and currency — secure checkout by Flutterwave.
+            </p>
+          </div>
+
+          <MultiCurrencyPayButton />
+        </section>
 
         {/* Responsible gambling */}
         <p className="border-t border-zinc-200 pt-8 text-center text-xs leading-relaxed text-zinc-400 dark:border-zinc-800">
