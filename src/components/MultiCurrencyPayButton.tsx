@@ -9,7 +9,9 @@ import {
   SUPPORTED_CURRENCIES,
   formatCurrency,
   getCurrency,
+  planAmount,
   type CurrencyOption,
+  type PlanId,
 } from "@/data/currencies";
 
 // --- Flutterwave inline checkout typings ---------------------------------
@@ -43,29 +45,38 @@ declare global {
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const PLANS: { id: PlanId; label: string; cadence: string }[] = [
+  { id: "weekly", label: "Weekly Access", cadence: "/ week" },
+  { id: "monthly", label: "Monthly Access", cadence: "/ month" },
+];
+
 export interface MultiCurrencyPayButtonProps {
   /** Currency selected on first render. Defaults to the first supported currency (NGN). */
   defaultCurrencyCode?: string;
-  /** VIP tier id sent to the verification endpoint. */
-  tierId?: string;
+  /** Plan selected on first render. */
+  defaultPlan?: PlanId;
   title?: string;
-  description?: string;
   className?: string;
   /** Called after the server confirms the payment. */
-  onVerified?: (info: { txRef: string; transactionId: number; currency: string }) => void;
+  onVerified?: (info: {
+    txRef: string;
+    transactionId: number;
+    currency: string;
+    plan: PlanId;
+  }) => void;
 }
 
 export function MultiCurrencyPayButton({
   defaultCurrencyCode = SUPPORTED_CURRENCIES[0].code,
-  tierId = "monthly",
+  defaultPlan = "monthly",
   title = "2Odds VIP Membership",
-  description = "Monthly VIP access — full feed, staking plans, early team news.",
   className,
   onVerified,
 }: MultiCurrencyPayButtonProps) {
   const [currency, setCurrency] = useState<CurrencyOption>(
     () => getCurrency(defaultCurrencyCode) ?? SUPPORTED_CURRENCIES[0],
   );
+  const [plan, setPlan] = useState<PlanId>(defaultPlan);
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [scriptReady, setScriptReady] = useState(false);
@@ -77,7 +88,12 @@ export function MultiCurrencyPayButton({
   const menuId = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  const price = useMemo(() => formatCurrency(currency), [currency]);
+  const amount = useMemo(() => planAmount(currency, plan), [currency, plan]);
+  const price = useMemo(
+    () => formatCurrency(currency, amount),
+    [currency, amount],
+  );
+  const cadence = plan === "weekly" ? "/ week" : "/ month";
 
   // Close the currency menu on outside click / Escape.
   useEffect(() => {
@@ -96,12 +112,19 @@ export function MultiCurrencyPayButton({
     };
   }, [menuOpen]);
 
-  const selectCurrency = useCallback((next: CurrencyOption) => {
-    setCurrency(next);
-    setMenuOpen(false);
+  const resetFeedback = useCallback(() => {
     setError(null);
     setNotice(null);
   }, []);
+
+  const selectCurrency = useCallback(
+    (next: CurrencyOption) => {
+      setCurrency(next);
+      setMenuOpen(false);
+      resetFeedback();
+    },
+    [resetFeedback],
+  );
 
   const pay = useCallback(() => {
     setError(null);
@@ -122,18 +145,19 @@ export function MultiCurrencyPayButton({
       return;
     }
 
-    const txRef = `vip-${tierId}-${currency.code}-${Date.now()}`;
+    const planLabel = plan === "weekly" ? "Weekly" : "Monthly";
+    const txRef = `vip-${plan}-${currency.code}-${Date.now()}`;
     setPending(true);
     window.FlutterwaveCheckout({
       public_key: PUBLIC_KEY,
       tx_ref: txRef,
-      amount: currency.amount,
+      amount,
       currency: currency.code,
       payment_options: "card,banktransfer,ussd,mobilemoney,opay",
       customer: { email },
       customizations: {
         title,
-        description: `${description} (${currency.name})`,
+        description: `${planLabel} VIP access (${currency.name})`,
       },
       callback: (response) => {
         const completed =
@@ -150,9 +174,9 @@ export function MultiCurrencyPayButton({
           body: JSON.stringify({
             transaction_id: response.transaction_id,
             tx_ref: response.tx_ref,
-            tier: tierId,
+            tier: plan,
             currency: currency.code,
-            amount: currency.amount,
+            amount,
           }),
         })
           .then(async (res) => {
@@ -168,6 +192,7 @@ export function MultiCurrencyPayButton({
                 txRef: response.tx_ref,
                 transactionId: response.transaction_id!,
                 currency: currency.code,
+                plan,
               });
             } else {
               setNotice(null);
@@ -187,7 +212,7 @@ export function MultiCurrencyPayButton({
       },
       onclose: () => setPending(false),
     });
-  }, [email, scriptReady, currency, tierId, title, description, onVerified, router]);
+  }, [email, scriptReady, currency, plan, amount, title, onVerified, router]);
 
   return (
     <div className={cn("mx-auto w-full max-w-sm flex-col gap-4", className)}>
@@ -204,15 +229,53 @@ export function MultiCurrencyPayButton({
           {title}
         </p>
 
+        {/* Plan toggle ----------------------------------------------------- */}
+        <div
+          role="tablist"
+          aria-label="Billing plan"
+          className="mt-4 grid grid-cols-2 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900"
+        >
+          {PLANS.map((p) => {
+            const active = p.id === plan;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => {
+                  setPlan(p.id);
+                  resetFeedback();
+                }}
+                className={cn(
+                  "flex flex-col items-center rounded-lg px-3 py-2 text-sm font-semibold transition-colors",
+                  active
+                    ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-950 dark:text-zinc-50"
+                    : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200",
+                )}
+              >
+                {p.label}
+                <span className="mt-0.5 text-xs font-medium tabular-nums text-zinc-500 dark:text-zinc-400">
+                  {formatCurrency(currency, planAmount(currency, p.id))}
+                  {" "}
+                  {p.cadence}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         <p className="mt-4 flex items-baseline gap-1">
           <span className="text-3xl font-extrabold tabular-nums text-zinc-900 dark:text-zinc-50">
             {price}
           </span>
           <span className="text-sm text-zinc-500 dark:text-zinc-400">
-            / month · {currency.code}
+            {cadence} · {currency.code}
           </span>
         </p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          Full VIP feed, staking plans, and early team news.
+        </p>
 
         {/* Currency selector -------------------------------------------------- */}
         <div ref={wrapRef} className="relative mt-5">
@@ -270,7 +333,7 @@ export function MultiCurrencyPayButton({
                         {c.name}
                       </span>
                       <span className="flex items-center gap-2 tabular-nums text-zinc-500 dark:text-zinc-400">
-                        {formatCurrency(c)}
+                        {formatCurrency(c, planAmount(c, plan))}
                         {active && (
                           <Check className="size-4 text-emerald-500" aria-hidden />
                         )}

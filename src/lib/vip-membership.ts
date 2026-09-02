@@ -1,5 +1,10 @@
 import { vipTiers, type VipTier } from "@/lib/predictions";
-import { getCurrency, type CurrencyOption } from "@/data/currencies";
+import {
+  getCurrency,
+  planAmount,
+  type CurrencyOption,
+  type PlanId,
+} from "@/data/currencies";
 
 /** Pricing + amount-matching rules shared by the Flutterwave routes. */
 
@@ -14,11 +19,10 @@ export const TIER_DAYS: Record<string, number> = {
 
 /**
  * Amounts accepted for live end-to-end testing in addition to the real
- * per-currency prices. Keep this empty in production.
+ * per-currency prices. Empty in production — real pricing lives in
+ * `src/data/currencies.ts`.
  */
-export const TEST_AMOUNTS: Record<string, number[]> = {
-  NGN: [100],
-};
+export const TEST_AMOUNTS: Record<string, number[]> = {};
 
 // Accept payments slightly under the target so processor fees and FX rounding
 // (e.g. 102 charged vs 100 expected, or 99.4 settled) still verify. Overpayment
@@ -70,16 +74,18 @@ export function resolveTier(id?: string | null): VipTier | undefined {
 
 /**
  * The price we expect to have charged for `tier` in `currency`.
- * `src/data/currencies.ts` only encodes the monthly-access equivalent per
- * currency, so non-NGN checkout is limited to the monthly tier; every tier is
- * priced in NGN via `vipTiers`.
+ * Weekly and Monthly are priced per-currency in `src/data/currencies.ts`.
+ * Any other tier (e.g. the NGN-only Season Pass) falls back to `vipTiers`
+ * and is only available in NGN.
  */
 export function expectedAmountFor(
   tier: VipTier,
   currency: CurrencyOption,
 ): number | null {
-  if (currency.code === DEFAULT_CURRENCY) return tier.amountNGN;
-  return tier.id === "monthly" ? currency.amount : null;
+  if (tier.id === "weekly" || tier.id === "monthly") {
+    return planAmount(currency, tier.id as PlanId);
+  }
+  return currency.code === DEFAULT_CURRENCY ? tier.amountNGN : null;
 }
 
 /** Membership expiry (epoch seconds) for a tier that started at `paidAtMs`. */
@@ -88,5 +94,5 @@ export function membershipExpiry(tierId: string, paidAtMs: number): number {
   return Math.floor((paidAtMs + days * 24 * 60 * 60 * 1000) / 1000);
 }
 
-export { getCurrency };
-export type { CurrencyOption, VipTier };
+export { getCurrency, planAmount };
+export type { CurrencyOption, PlanId, VipTier };

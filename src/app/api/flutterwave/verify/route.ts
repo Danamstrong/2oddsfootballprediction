@@ -88,10 +88,11 @@ export async function POST(req: Request) {
     return fail(`Unsupported checkout currency "${currencyCode}".`, 400);
   }
 
+  // Expected price for this plan (weekly/monthly) in this currency.
   const expectedAmount = expectedAmountFor(tier, currency);
   if (expectedAmount == null) {
     return fail(
-      `${tier.name} is only priced in ${DEFAULT_CURRENCY}; ${currency.code} checkout supports the monthly plan only.`,
+      `${tier.name} is only priced in ${DEFAULT_CURRENCY}; ${currency.code} checkout supports the weekly and monthly plans only.`,
       400,
     );
   }
@@ -158,7 +159,7 @@ export async function POST(req: Request) {
   }
   if (!isAcceptedAmount(currency.code, Number(tx.amount), expectedAmount)) {
     problems.push(
-      `amount ${tx.amount} is below the ${tier.name} ${currency.code} price ${expectedAmount} and is not an accepted test amount`,
+      `amount ${tx.amount} is below the ${tier.name} ${currency.code} price ${expectedAmount} (beyond the fee tolerance)`,
     );
   }
   if (body.tx_ref && tx.tx_ref !== body.tx_ref) {
