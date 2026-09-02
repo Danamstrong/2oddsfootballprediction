@@ -7,7 +7,7 @@ export interface CurrencyOption {
 }
 
 export const SUPPORTED_CURRENCIES: CurrencyOption[] = [
-  { code: 'NGN', symbol: '₦', name: 'Nigeria (NGN)', flag: '🇳🇬', amount: 5000 },
+  { code: 'NGN', symbol: '₦', name: 'Nigeria (NGN)', flag: '🇳🇬', amount: 100 },
   { code: 'USD', symbol: '$', name: 'United States (USD)', flag: '🇺🇸', amount: 10 },
   { code: 'GBP', symbol: '£', name: 'United Kingdom (GBP)', flag: '🇬🇧', amount: 8 },
   { code: 'EUR', symbol: '€', name: 'Eurozone (EUR)', flag: '🇪🇺', amount: 9 },
