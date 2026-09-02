@@ -1,30 +1,19 @@
 import { NextResponse } from "next/server";
-import { vipTiers, type VipTier } from "@/lib/predictions";
-import { getCurrency, type CurrencyOption } from "@/data/currencies";
 import { VIP_COOKIE, encodeVipAccess, vipCookieOptions } from "@/lib/vip-access";
+import {
+  DEFAULT_CURRENCY,
+  expectedAmountFor,
+  getCurrency,
+  isAcceptedAmount,
+  membershipExpiry,
+  parseTxRef,
+  resolveTier,
+} from "@/lib/vip-membership";
 
 // Uses FLW_SECRET_KEY (server only) — never runs on the edge/client.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DEFAULT_CURRENCY = "NGN";
-
-/**
- * Amounts accepted for live end-to-end testing in addition to the real
- * per-currency prices. Keep this empty in production.
- */
-const TEST_AMOUNTS: Record<string, number[]> = {
-  NGN: [100],
-};
-
-function isAcceptedAmount(
-  currencyCode: string,
-  paid: number,
-  expected: number,
-): boolean {
-  if (paid >= expected) return true;
-  return (TEST_AMOUNTS[currencyCode] ?? []).includes(paid);
-}
 const verifyUrl = (id: string) =>
   `https://api.flutterwave.com/v3/transactions/${encodeURIComponent(id)}/verify`;
 
@@ -52,39 +41,6 @@ interface FlwVerifyResponse {
   status: string;
   message: string;
   data?: FlwTransaction;
-}
-
-/**
- * Parse the tx_ref shapes this app creates:
- *   `vip-<tierId>-<CUR>-<timestamp>`  — MultiCurrencyPayButton
- *   `vip-<tierId>-<timestamp>`        — legacy NGN-only VipPricing
- */
-function parseTxRef(txRef?: string): { tierId?: string; currencyCode?: string } {
-  if (!txRef) return {};
-  const withCurrency = /^vip-([a-z0-9]+)-([A-Za-z]{3})-\d+$/.exec(txRef);
-  if (withCurrency) {
-    return {
-      tierId: withCurrency[1].toLowerCase(),
-      currencyCode: withCurrency[2].toUpperCase(),
-    };
-  }
-  const legacy = /^vip-([a-z0-9]+)-\d+$/.exec(txRef);
-  if (legacy) return { tierId: legacy[1].toLowerCase() };
-  return {};
-}
-
-/**
- * The price we expect to have charged for `tier` in `currency`.
- * `src/data/currencies.ts` only encodes the monthly-access equivalent per
- * currency, so non-NGN checkout is limited to the monthly tier; every tier is
- * priced in NGN via `vipTiers`.
- */
-function expectedAmountFor(
-  tier: VipTier,
-  currency: CurrencyOption,
-): number | null {
-  if (currency.code === DEFAULT_CURRENCY) return tier.amountNGN;
-  return tier.id === "monthly" ? currency.amount : null;
 }
 
 function fail(message: string, status: number, details?: string[]) {
@@ -116,8 +72,7 @@ export async function POST(req: Request) {
   const parsed = parseTxRef(body.tx_ref);
 
   // Expected tier: explicit `tier` wins, otherwise derive it from `tx_ref`.
-  const tierId = (body.tier ?? parsed.tierId)?.toLowerCase();
-  const tier = vipTiers.find((t) => t.id === tierId);
+  const tier = resolveTier(body.tier ?? parsed.tierId);
   if (!tier) {
     return fail("Could not resolve a known VIP tier for this payment.", 400);
   }
@@ -236,13 +191,16 @@ export async function POST(req: Request) {
       paidAt: tx.created_at ?? null,
     },
   });
+  const paidAtMs = tx.created_at ? Date.parse(tx.created_at) : Date.now();
   res.cookies.set(
     VIP_COOKIE,
     encodeVipAccess({
       tier: tier.id,
       email: tx.customer?.email ?? null,
       txRef: tx.tx_ref,
+      exp: membershipExpiry(tier.id, Number.isNaN(paidAtMs) ? Date.now() : paidAtMs),
     }),
+    // httpOnly + SameSite=Lax + Path=/
     vipCookieOptions(),
   );
   return res;

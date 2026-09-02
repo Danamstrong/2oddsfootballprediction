@@ -3,6 +3,7 @@ import { ShieldCheck, BarChart3, Bell, Lock, Crown } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
 import { PredictionCard } from "@/components/PredictionCard";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
+import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import {
   getCurrentEdition,
   getEditions,
@@ -146,6 +147,7 @@ export default async function Home() {
           </div>
 
           <MultiCurrencyPayButton />
+          {!vipAccess && <RestoreAccessForm />}
         </section>
 
         {/* Responsible gambling */}
