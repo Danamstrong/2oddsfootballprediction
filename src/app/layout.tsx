@@ -85,6 +85,30 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteHeader />
         {children}
         <SiteFooter />
+        <Script
+          src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+          strategy="afterInteractive"
+          async
+        />
+        <Script
+          id="onesignal-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.OneSignalDeferred = window.OneSignalDeferred || [];
+              OneSignalDeferred.push(async function(OneSignal) {
+                await OneSignal.init({
+                  appId: "b7bccc1f-622b-48cf-8d0e-6eead48e4e52",
+                  safari_web_id: "web.onesignal.auto.271ef36b-44de-4fef-87dc-9a2f81b1418e",
+                  notifyButton: {
+                    enable: true,
+                  },
+                  allowLocalhostAsSecureOrigin: true,
+                });
+              });
+            `,
+          }}
+        />
         <MonetagScripts />
         <Script
           id="monetag-inpage-push"
