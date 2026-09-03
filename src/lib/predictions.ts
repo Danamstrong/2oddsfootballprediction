@@ -106,6 +106,45 @@ export function allPicks(edition: Edition): MatchPick[] {
   ];
 }
 
+// --- Historical archive (sanitised) ----------------------------------
+
+/**
+ * One settled result for the public archive. Deliberately omits `market`,
+ * `selection`, `analysis` and `confidence` so the pattern behind our picks
+ * can't be reverse-engineered from history.
+ */
+export interface ArchiveRow {
+  id: string;
+  /** ISO date, YYYY-MM-DD. */
+  date: string;
+  home: string;
+  away: string;
+  league: string;
+  country?: string;
+  odds: number;
+  result: "won" | "lost";
+}
+
+/** Every settled single pick, newest first, stripped to archive-safe fields. */
+export function getArchiveRows(list: Edition[] = getEditions()): ArchiveRow[] {
+  return list
+    .flatMap((edition) =>
+      [...edition.free, ...edition.vip]
+        .filter((p) => p.status === "won" || p.status === "lost")
+        .map((p) => ({
+          id: p.id,
+          date: edition.date,
+          home: p.home,
+          away: p.away,
+          league: p.league,
+          country: p.country,
+          odds: p.odds,
+          result: p.status as "won" | "lost",
+        })),
+    )
+    .sort((a, b) => b.date.localeCompare(a.date) || a.home.localeCompare(b.home));
+}
+
 // --- Odds & settlement -------------------------------------------------
 
 export function combinedOdds(selections: Pick<MatchPick, "odds">[]): number {

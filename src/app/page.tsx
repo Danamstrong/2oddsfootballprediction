@@ -4,6 +4,7 @@ import { DailyTicket } from "@/components/DailyTicket";
 import { PredictionCard } from "@/components/PredictionCard";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { RestoreAccessForm } from "@/components/RestoreAccessForm";
+import { Testimonials } from "@/components/Testimonials";
 import {
   getCurrentEdition,
   getEditions,
@@ -149,6 +150,9 @@ export default async function Home() {
           <MultiCurrencyPayButton />
           {!vipAccess && <RestoreAccessForm />}
         </section>
+
+        {/* Testimonials */}
+        <Testimonials />
 
         {/* Responsible gambling */}
         <p className="border-t border-zinc-200 pt-8 text-center text-xs leading-relaxed text-zinc-400 dark:border-zinc-800">
