@@ -1,7 +1,6 @@
-import { CalendarDays, Flame } from "lucide-react";
+import { Flame } from "lucide-react";
 import {
   combinedOdds,
-  formatEditionDate,
   formatKickoff,
   formatNGN,
   potentialReturn,
@@ -11,8 +10,6 @@ import {
 
 export interface DailyTicketProps {
   slip: Slip;
-  /** ISO date (YYYY-MM-DD) of the edition this slip belongs to. */
-  date: string;
 }
 
 const statusTone: Record<ReturnType<typeof slipStatus>, string> = {
@@ -22,7 +19,7 @@ const statusTone: Record<ReturnType<typeof slipStatus>, string> = {
   void: "text-zinc-500",
 };
 
-export function DailyTicket({ slip, date }: DailyTicketProps) {
+export function DailyTicket({ slip }: DailyTicketProps) {
   const odds = combinedOdds(slip.selections);
   const payout = potentialReturn(slip.stake, slip.selections);
   const status = slipStatus(slip.selections);
@@ -32,22 +29,16 @@ export function DailyTicket({ slip, date }: DailyTicketProps) {
       aria-labelledby="daily-ticket-heading"
       className="overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950 via-zinc-950 to-zinc-950 text-zinc-100 shadow-lg"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
-        <div className="flex items-center gap-2">
-          <Flame className="size-5 text-emerald-400" aria-hidden />
-          <h2 id="daily-ticket-heading" className="text-lg font-bold">
-            {slip.title}
-          </h2>
-          <span
-            className={`text-xs font-semibold uppercase tracking-wide ${statusTone[status]}`}
-          >
-            {status}
-          </span>
-        </div>
-        <p className="inline-flex items-center gap-1.5 text-sm text-zinc-400">
-          <CalendarDays className="size-4" aria-hidden />
-          {formatEditionDate(date)}
-        </p>
+      <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-6 py-4">
+        <Flame className="size-5 text-emerald-400" aria-hidden />
+        <h2 id="daily-ticket-heading" className="text-lg font-bold">
+          {slip.title}
+        </h2>
+        <span
+          className={`text-xs font-semibold uppercase tracking-wide ${statusTone[status]}`}
+        >
+          {status}
+        </span>
       </div>
 
       <ol className="divide-y divide-white/10">

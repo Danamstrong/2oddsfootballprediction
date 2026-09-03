@@ -5,6 +5,7 @@ import { PredictionCard } from "@/components/PredictionCard";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import { Testimonials } from "@/components/Testimonials";
+import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import {
   getCurrentEdition,
   getEditions,
@@ -33,6 +34,9 @@ export default async function Home() {
             A hand-built 2-odds ticket every day, plus statistically modelled
             match picks across Europe&rsquo;s top leagues.
           </p>
+
+          <LiveStatusBanner />
+
           <dl className="mt-2 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-zinc-500 dark:text-zinc-400">
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="size-4 text-emerald-500" aria-hidden />
@@ -51,7 +55,7 @@ export default async function Home() {
         </section>
 
         {/* Daily 2-Odds Feature ticket */}
-        <DailyTicket slip={edition.feature} date={edition.date} />
+        <DailyTicket slip={edition.feature} />
 
         {/* Free match picks */}
         <section aria-labelledby="picks-heading" className="flex flex-col gap-6">
