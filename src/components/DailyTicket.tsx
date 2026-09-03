@@ -7,9 +7,13 @@ import {
   slipStatus,
   type Slip,
 } from "@/lib/predictions";
+import { JsonLd } from "@/components/JsonLd";
+import { predictionJsonLd } from "@/lib/seo";
 
 export interface DailyTicketProps {
   slip: Slip;
+  /** ISO date of the edition — enables SportsEvent/OddsPrediction JSON-LD. */
+  editionDate?: string;
 }
 
 const statusTone: Record<ReturnType<typeof slipStatus>, string> = {
@@ -19,7 +23,7 @@ const statusTone: Record<ReturnType<typeof slipStatus>, string> = {
   void: "text-zinc-500",
 };
 
-export function DailyTicket({ slip }: DailyTicketProps) {
+export function DailyTicket({ slip, editionDate }: DailyTicketProps) {
   const odds = combinedOdds(slip.selections);
   const payout = potentialReturn(slip.stake, slip.selections);
   const status = slipStatus(slip.selections);
@@ -29,6 +33,12 @@ export function DailyTicket({ slip }: DailyTicketProps) {
       aria-labelledby="daily-ticket-heading"
       className="overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950 via-zinc-950 to-zinc-950 text-zinc-100 shadow-lg"
     >
+      {editionDate && (
+        <JsonLd
+          data={predictionJsonLd(slip, editionDate)}
+          id="schema-daily-ticket"
+        />
+      )}
       <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-6 py-4">
         <Flame className="size-5 text-emerald-400" aria-hidden />
         <h2 id="daily-ticket-heading" className="text-lg font-bold">

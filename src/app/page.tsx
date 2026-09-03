@@ -55,7 +55,7 @@ export default async function Home() {
         </section>
 
         {/* Daily 2-Odds Feature ticket */}
-        <DailyTicket slip={edition.feature} />
+        <DailyTicket slip={edition.feature} editionDate={edition.date} />
 
         {/* Free match picks */}
         <section aria-labelledby="picks-heading" className="flex flex-col gap-6">

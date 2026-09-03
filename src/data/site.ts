@@ -2,7 +2,13 @@
 
 export const SITE_NAME = "2Odds Football Prediction";
 export const SITE_DOMAIN = "2oddsfootballprediction.com";
+/** Canonical origin — no www, no trailing slash. */
+export const SITE_URL = "https://2oddsfootballprediction.com";
+export const SITE_LOGO_URL = `${SITE_URL}/icon`;
 export const SUPPORT_EMAIL = "support@2oddsfootballprediction.com";
+
+export const SITE_TAGLINE =
+  "Daily Verified Sports Analytics & VIP Picks";
 
 export interface SocialLink {
   name: string;
@@ -43,6 +49,7 @@ export const NAV_LINKS: NavLink[] = [
   { name: "Predictions", href: "/" },
   { name: "Live Scores", href: "/livescores" },
   { name: "Archive", href: "/archive" },
+  { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];

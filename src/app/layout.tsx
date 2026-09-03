@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { JsonLd } from "@/components/JsonLd";
+import { organizationJsonLd } from "@/lib/seo";
+import { SITE_NAME, SITE_URL, SITE_TAGLINE } from "@/data/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,16 +17,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_NAME = "2Odds Football Prediction";
 const SITE_DESCRIPTION =
   "Daily data-driven football predictions and 2 odds betting tips. Match analysis, form trends, and statistical insights to guide your bets.";
-// TODO: replace with the production domain once it's live.
-const SITE_URL = "https://www.2oddsfootballprediction.com";
+const DEFAULT_TITLE = `${SITE_NAME} — ${SITE_TAGLINE}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "2Odds Football Prediction | Daily Data-Driven Football Insights",
+    default: DEFAULT_TITLE,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -36,6 +37,8 @@ export const metadata: Metadata = {
     "sure 2 odds",
     "match analysis",
     "football stats",
+    "verified sports analytics",
+    "VIP football picks",
   ],
   applicationName: SITE_NAME,
   alternates: {
@@ -45,12 +48,12 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     url: SITE_URL,
-    title: "2Odds Football Prediction | Daily Data-Driven Football Insights",
+    title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "2Odds Football Prediction | Daily Data-Driven Football Insights",
+    title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
   },
   robots: {
@@ -72,6 +75,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <JsonLd data={organizationJsonLd()} id="schema-organization" />
         <SiteHeader />
         {children}
         <SiteFooter />
