@@ -1,5 +1,6 @@
 import { Clock, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ConfidenceModal } from "@/components/ConfidenceModal";
 import { formatKickoff, type MatchPick, type PickStatus } from "@/lib/predictions";
 
 const statusStyles: Record<PickStatus, string> = {
@@ -88,6 +89,7 @@ export function PredictionCard({ pick, className }: PredictionCardProps) {
             style={{ width: `${pick.confidence}%` }}
           />
         </div>
+        <ConfidenceModal />
       </div>
 
       <footer>

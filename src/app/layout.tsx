@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { MonetagScripts } from "@/components/MonetagScripts";
 import { JsonLd } from "@/components/JsonLd";
 import { organizationJsonLd } from "@/lib/seo";
 import { SITE_NAME, SITE_URL, SITE_TAGLINE } from "@/data/site";
@@ -66,6 +67,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  other: {
+    // Monetag site ownership verification.
+    monetag: "4657df9632b9d7560a216a7f8403d960",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -79,6 +84,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SiteHeader />
         {children}
         <SiteFooter />
+        <MonetagScripts />
       </body>
     </html>
   );
