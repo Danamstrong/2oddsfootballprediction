@@ -23,8 +23,8 @@ export function SiteHeader() {
           className="flex items-center gap-2 font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50"
           onClick={() => setOpen(false)}
         >
-          <span className="grid size-7 place-items-center rounded-lg bg-emerald-500 text-sm font-black text-white">
-            2O
+          <span className="grid size-7 place-items-center rounded-lg bg-emerald-500 text-sm font-black leading-none tracking-tight text-white">
+            2+
           </span>
           <span className="hidden sm:inline">{SITE_NAME}</span>
         </Link>
