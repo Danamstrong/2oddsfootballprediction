@@ -2,42 +2,21 @@ import Link from "next/link";
 import { ShieldCheck, BarChart3, Bell, Lock, Crown } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
 import { PredictionCard } from "@/components/PredictionCard";
-import { HistoricalPicksFeed, type FeedDay } from "@/components/HistoricalPicksFeed";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
-import {
-  formatEditionDate,
-  getCurrentEdition,
-  getEditions,
-  performance,
-} from "@/lib/predictions";
+import { getCurrentEdition, getEditions, performance } from "@/lib/predictions";
 import { readVipAccess } from "@/lib/vip-access";
 
 export default async function Home() {
   const edition = getCurrentEdition();
-  const editionsNewestFirst = getEditions();
-  const record = performance(editionsNewestFirst);
+  const record = performance(getEditions());
   const vipAccess = await readVipAccess();
   const isVipActive = Boolean(vipAccess);
 
-  // Build the 3-day historical toggle: the current edition and the two before
-  // it. Each day contributes up to 6 rows (free + VIP picks, interleaved).
-  const currentIndex = Math.max(
-    0,
-    editionsNewestFirst.findIndex((e) => e.date === edition.date),
-  );
-  const feedDays: FeedDay[] = ["Today", "Yesterday", "2 Days Ago"].map(
-    (label, offset) => {
-      const day = editionsNewestFirst[currentIndex + offset];
-      return {
-        label,
-        dateLabel: day ? formatEditionDate(day.date) : null,
-        rows: day ? [...day.free, ...day.vip].slice(0, 6) : [],
-      };
-    },
-  );
+  // The 6 interleaved rows for the slip table: free picks first, then VIP.
+  const rows = [...edition.free, ...edition.vip].slice(0, 6);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -75,11 +54,13 @@ export default async function Home() {
           </dl>
         </section>
 
-        {/* Daily 2-Odds Feature ticket */}
-        <DailyTicket slip={edition.feature} editionDate={edition.date} />
-
-        {/* Free match picks — 6 interleaved rows, ad-locked for non-VIP */}
-        <HistoricalPicksFeed days={feedDays} isVipActive={isVipActive} />
+        {/* Daily 2-Odds slip — 6 interleaved rows, ad-locked for non-VIP */}
+        <DailyTicket
+          slip={edition.feature}
+          rows={rows}
+          isVipActive={isVipActive}
+          editionDate={edition.date}
+        />
 
         {/* VIP picks — unlocked for members, locked teaser otherwise */}
         {edition.vip.length > 0 && (
