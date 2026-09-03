@@ -46,3 +46,28 @@ export const NAV_LINKS: NavLink[] = [
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
+
+export const LEGAL_LINKS: NavLink[] = [
+  { name: "Terms of Service", href: "/terms" },
+  { name: "Privacy Policy", href: "/privacy" },
+];
+
+export interface ExternalResource {
+  name: string;
+  href: string;
+  description: string;
+}
+
+/** Independent responsible-gambling support services. */
+export const RESPONSIBLE_GAMBLING_RESOURCES: ExternalResource[] = [
+  {
+    name: "BeGambleAware",
+    href: "https://www.begambleaware.org",
+    description: "Free, confidential advice and support",
+  },
+  {
+    name: "Gambling Therapy",
+    href: "https://www.gamblingtherapy.org",
+    description: "Global online support for anyone affected by gambling",
+  },
+];
