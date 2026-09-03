@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import Link from "next/link";
 import { Radio } from "lucide-react";
 import { LiveScoreWidget } from "@/components/LiveScoreWidget";
-import { getCurrentEdition, formatEditionDate } from "@/lib/predictions";
 
 export const metadata: Metadata = {
   title: "Live Scores",
@@ -11,8 +11,15 @@ export const metadata: Metadata = {
   alternates: { canonical: "/livescores" },
 };
 
-export default function LiveScoresPage() {
-  const edition = getCurrentEdition();
+export default async function LiveScoresPage() {
+  // Opt out of prerendering so the date below reflects the actual request time
+  // rather than being frozen at build time.
+  await connection();
+  const today = new Date().toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <main className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -32,7 +39,7 @@ export default function LiveScoresPage() {
               href="/"
               className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
             >
-              {formatEditionDate(edition.date)} card
+              {today} card
             </Link>{" "}
             as they play out.
           </p>

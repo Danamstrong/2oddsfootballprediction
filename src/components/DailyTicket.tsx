@@ -1,12 +1,5 @@
 import { Flame } from "lucide-react";
-import {
-  combinedOdds,
-  formatKickoff,
-  formatNGN,
-  potentialReturn,
-  slipStatus,
-  type Slip,
-} from "@/lib/predictions";
+import { formatKickoff, slipStatus, type Slip } from "@/lib/predictions";
 import { JsonLd } from "@/components/JsonLd";
 import { predictionJsonLd } from "@/lib/seo";
 
@@ -24,8 +17,6 @@ const statusTone: Record<ReturnType<typeof slipStatus>, string> = {
 };
 
 export function DailyTicket({ slip, editionDate }: DailyTicketProps) {
-  const odds = combinedOdds(slip.selections);
-  const payout = potentialReturn(slip.stake, slip.selections);
   const status = slipStatus(slip.selections);
 
   return (
@@ -73,34 +64,7 @@ export function DailyTicket({ slip, editionDate }: DailyTicketProps) {
         ))}
       </ol>
 
-      <dl className="grid grid-cols-3 gap-px border-t border-white/10 bg-white/10 text-center">
-        <div className="bg-zinc-950 px-3 py-4">
-          <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Combined odds
-          </dt>
-          <dd className="mt-1 text-xl font-bold tabular-nums text-emerald-400">
-            {odds.toFixed(2)}
-          </dd>
-        </div>
-        <div className="bg-zinc-950 px-3 py-4">
-          <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Stake
-          </dt>
-          <dd className="mt-1 text-xl font-bold tabular-nums">
-            {formatNGN(slip.stake)}
-          </dd>
-        </div>
-        <div className="bg-zinc-950 px-3 py-4">
-          <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
-            Returns
-          </dt>
-          <dd className="mt-1 text-xl font-bold tabular-nums">
-            {formatNGN(Math.round(payout))}
-          </dd>
-        </div>
-      </dl>
-
-      <p className="px-6 py-3 text-center text-[11px] text-zinc-500">
+      <p className="border-t border-white/10 px-6 py-3 text-center text-[11px] text-zinc-500">
         Odds move constantly &mdash; confirm prices with your bookmaker before staking.
       </p>
     </section>

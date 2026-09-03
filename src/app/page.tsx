@@ -2,11 +2,13 @@ import Link from "next/link";
 import { ShieldCheck, BarChart3, Bell, Lock, Crown } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
 import { PredictionCard } from "@/components/PredictionCard";
+import { HistoricalPicksFeed, type FeedDay } from "@/components/HistoricalPicksFeed";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import {
+  formatEditionDate,
   getCurrentEdition,
   getEditions,
   performance,
@@ -15,8 +17,27 @@ import { readVipAccess } from "@/lib/vip-access";
 
 export default async function Home() {
   const edition = getCurrentEdition();
-  const record = performance(getEditions());
+  const editionsNewestFirst = getEditions();
+  const record = performance(editionsNewestFirst);
   const vipAccess = await readVipAccess();
+  const isVipActive = Boolean(vipAccess);
+
+  // Build the 3-day historical toggle: the current edition and the two before
+  // it. Each day contributes up to 6 rows (free + VIP picks, interleaved).
+  const currentIndex = Math.max(
+    0,
+    editionsNewestFirst.findIndex((e) => e.date === edition.date),
+  );
+  const feedDays: FeedDay[] = ["Today", "Yesterday", "2 Days Ago"].map(
+    (label, offset) => {
+      const day = editionsNewestFirst[currentIndex + offset];
+      return {
+        label,
+        dateLabel: day ? formatEditionDate(day.date) : null,
+        rows: day ? [...day.free, ...day.vip].slice(0, 6) : [],
+      };
+    },
+  );
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -57,25 +78,8 @@ export default async function Home() {
         {/* Daily 2-Odds Feature ticket */}
         <DailyTicket slip={edition.feature} editionDate={edition.date} />
 
-        {/* Free match picks */}
-        <section aria-labelledby="picks-heading" className="flex flex-col gap-6">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <h2
-              id="picks-heading"
-              className="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-zinc-50"
-            >
-              Today&rsquo;s free picks
-            </h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {edition.free.length} free &middot; {edition.vip.length} more in VIP
-            </p>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {edition.free.map((pick) => (
-              <PredictionCard key={pick.id} pick={pick} />
-            ))}
-          </div>
-        </section>
+        {/* Free match picks — 6 interleaved rows, ad-locked for non-VIP */}
+        <HistoricalPicksFeed days={feedDays} isVipActive={isVipActive} />
 
         {/* VIP picks — unlocked for members, locked teaser otherwise */}
         {edition.vip.length > 0 && (
