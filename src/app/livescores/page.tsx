@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { connection } from "next/server";
-import Link from "next/link";
 import { Radio } from "lucide-react";
 import { LiveScoreWidget } from "@/components/LiveScoreWidget";
 
@@ -11,16 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/livescores" },
 };
 
-export default async function LiveScoresPage() {
-  // Opt out of prerendering so the date below reflects the actual request time
-  // rather than being frozen at build time.
-  await connection();
-  const today = new Date().toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
+export default function LiveScoresPage() {
   return (
     <main className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-14 sm:px-6 sm:py-20">
@@ -33,15 +22,8 @@ export default async function LiveScoresPage() {
             Real-time football scores
           </h1>
           <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-            Live goals, half-times and full-times across every major league.
-            Track the fixtures on the{" "}
-            <Link
-              href="/"
-              className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-            >
-              {today} card
-            </Link>{" "}
-            as they play out.
+            Live goals, half-times, and full-times across every major league.
+            Track match fixtures as they play out in real time.
           </p>
         </header>
 
