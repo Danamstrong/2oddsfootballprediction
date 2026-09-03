@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
-import { Crown, Lock, Play, X } from "lucide-react";
+import { Crown, Lock, Play } from "lucide-react";
 import { formatKickoff, type MatchPick } from "@/lib/predictions";
 
-/** Seconds a rewarded ad must play before a row unlocks. */
-const AD_DURATION_SECONDS = 5;
+/** Monetag Direct Link — opened in a new tab when a visitor unlocks a row. */
+const MONETAG_DIRECT_LINK = "https://omg10.com/4/11717025";
 
 /** Rows 2, 4, 6 (1-based) are ad-locked for non-VIP visitors. */
 function isLockedRow(index: number): boolean {
@@ -23,14 +23,11 @@ export interface PicksTableProps {
 /**
  * The 6-row table inside the Daily 2-Odds slip container. Odd rows are always
  * visible; even rows are blurred behind a "Watch Ad to Unlock" prompt until the
- * visitor either watches a rewarded ad for that row or holds active VIP.
+ * visitor either opens the Monetag Direct Link for that row or holds active VIP.
  */
 export function PicksTable({ rows, isVipActive }: PicksTableProps) {
-  // Row indices the visitor has unlocked by watching an ad.
+  // Row indices the visitor has unlocked by engaging with the ad.
   const [unlockedRows, setUnlockedRows] = useState<number[]>([]);
-  // Row whose ad is currently playing, or null when no ad modal is open.
-  const [adRow, setAdRow] = useState<number | null>(null);
-  const [adRemaining, setAdRemaining] = useState(AD_DURATION_SECONDS);
 
   const rowUnlocked = useCallback(
     (index: number) =>
@@ -41,28 +38,14 @@ export function PicksTable({ rows, isVipActive }: PicksTableProps) {
   const lockedRemaining = rows.filter(
     (_, index) => !rowUnlocked(index),
   ).length;
-  const totalLocked = rows.filter((_, index) => isLockedRow(index)).length;
 
-  // Kick off a rewarded ad for a specific row. A real ad-network script would be
-  // invoked here (e.g. window.adBreak({ type: "reward", ... })); we simulate a
-  // rewarded placement with a short countdown modal.
-  const watchAd = useCallback((rowIndex: number) => {
-    setAdRow(rowIndex);
-    setAdRemaining(AD_DURATION_SECONDS);
-  }, []);
-
-  useEffect(() => {
-    if (adRow === null || adRemaining <= 0) return;
-    const timer = setTimeout(() => setAdRemaining((s) => s - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [adRow, adRemaining]);
-
-  const claimAdReward = useCallback(() => {
+  // Open the Monetag Direct Link, then reveal the row that was tapped.
+  const handleUnlockRow = (rowIndex: number) => {
+    window.open(MONETAG_DIRECT_LINK, "_blank", "noopener,noreferrer");
     setUnlockedRows((prev) =>
-      adRow === null || prev.includes(adRow) ? prev : [...prev, adRow],
+      prev.includes(rowIndex) ? prev : [...prev, rowIndex],
     );
-    setAdRow(null);
-  }, [adRow]);
+  };
 
   return (
     <>
@@ -102,7 +85,7 @@ export function PicksTable({ rows, isVipActive }: PicksTableProps) {
                   <Lock className="size-4 shrink-0 text-emerald-400" aria-hidden />
                   <button
                     type="button"
-                    onClick={() => watchAd(index)}
+                    onClick={() => handleUnlockRow(index)}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-600"
                   >
                     <Play className="size-3.5" aria-hidden />
@@ -124,65 +107,6 @@ export function PicksTable({ rows, isVipActive }: PicksTableProps) {
             <Crown className="size-4 shrink-0" aria-hidden />
             Join VIP to remove all ads and unlock instant access
           </Link>
-        </div>
-      )}
-
-      {/* Rewarded-ad modal */}
-      {adRow !== null && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Sponsored message"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-        >
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-xl dark:bg-zinc-950">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
-                Sponsored
-              </span>
-              <button
-                type="button"
-                onClick={() => setAdRow(null)}
-                aria-label="Close ad"
-                className="rounded-full p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
-              >
-                <X className="size-4" aria-hidden />
-              </button>
-            </div>
-
-            <div className="my-6 flex h-40 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/10 to-zinc-500/10 text-sm text-zinc-500 dark:text-zinc-400">
-              Advert playing…
-            </div>
-
-            {adRemaining > 0 ? (
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Your pick unlocks in{" "}
-                <span className="font-bold tabular-nums text-zinc-900 dark:text-zinc-50">
-                  {adRemaining}s
-                </span>
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={claimAdReward}
-                className="w-full rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600"
-              >
-                Reveal this pick
-              </button>
-            )}
-
-            <p className="mt-4 text-[11px] text-zinc-400">
-              Watch {totalLocked} ads in total to reveal every locked row, or{" "}
-              <Link
-                href="#vip-heading"
-                onClick={() => setAdRow(null)}
-                className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
-              >
-                go VIP
-              </Link>{" "}
-              to skip them.
-            </p>
-          </div>
         </div>
       )}
     </>
