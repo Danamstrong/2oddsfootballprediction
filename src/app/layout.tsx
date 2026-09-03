@@ -101,7 +101,26 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   appId: "b7bccc1f-622b-48cf-8d0e-6eead48e4e52",
                   safari_web_id: "web.onesignal.auto.271ef36b-44de-4fef-87dc-9a2f81b1418e",
                   notifyButton: {
-                    enable: true,
+                    enable: false, // Hides the bottom-right bell widget
+                  },
+                  promptOptions: {
+                    slidedown: {
+                      prompts: [
+                        {
+                          type: "push",
+                          autoPrompt: true,
+                          text: {
+                            actionMessage: "Subscribe to receive daily 2+ odds predictions instantly before matches go live!",
+                            acceptButton: "Subscribe Now",
+                            cancelButton: "Maybe Later",
+                          },
+                          delay: {
+                            pageViews: 1,
+                            timeDelay: 3, // Opens 3 seconds after page load
+                          },
+                        },
+                      ],
+                    },
                   },
                   allowLocalhostAsSecureOrigin: true,
                 });
