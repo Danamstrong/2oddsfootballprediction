@@ -68,6 +68,9 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
+  verification: {
+    google: "PliQy29lHYIOrtCYkN8vG_QX-tYafWwvHL17bRjWEV8",
+  },
   other: {
     // Monetag site ownership verification.
     monetag: "4657df9632b9d7560a216a7f8403d960",
@@ -82,6 +85,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <JsonLd data={organizationJsonLd()} id="schema-organization" />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-E37937VTP2"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-E37937VTP2');
+          `}
+        </Script>
         <SiteHeader />
         {children}
         <SiteFooter />
