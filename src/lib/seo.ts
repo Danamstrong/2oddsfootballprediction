@@ -7,6 +7,15 @@ import {
 } from "@/data/site";
 import type { Slip } from "@/lib/predictions";
 
+/** Kickoff + this many hours, used as the Event `endDate` Google requires. */
+const MATCH_DURATION_HOURS = 2;
+
+function addHours(iso: string, hours: number): string {
+  const date = new Date(iso);
+  date.setUTCHours(date.getUTCHours() + hours);
+  return date.toISOString();
+}
+
 /** Organization + WebSite graph for the root layout. */
 export function organizationJsonLd() {
   return {
@@ -60,10 +69,37 @@ export function predictionJsonLd(slip: Slip, editionDate: string) {
         name: `${s.home} vs ${s.away}`,
         sport: "Association Football",
         startDate: s.kickoff,
+        endDate: addHours(s.kickoff, MATCH_DURATION_HOURS),
         eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+        description: s.analysis,
+        image: [SITE_LOGO_URL],
+        location: {
+          "@type": "Place",
+          name: `${s.home} Stadium`,
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: s.country ?? "Global",
+          },
+        },
         homeTeam: { "@type": "SportsTeam", name: s.home },
         awayTeam: { "@type": "SportsTeam", name: s.away },
+        performer: [
+          { "@type": "SportsTeam", name: s.home },
+          { "@type": "SportsTeam", name: s.away },
+        ],
+        competitor: [
+          { "@type": "SportsTeam", name: s.home },
+          { "@type": "SportsTeam", name: s.away },
+        ],
         superEvent: { "@type": "SportsOrganization", name: s.league },
+        offers: {
+          "@type": "Offer",
+          url: SITE_URL,
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
         subjectOf: {
           "@type": "OddsPrediction",
           additionalType: "https://schema.org/Rating",
