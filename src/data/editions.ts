@@ -21,6 +21,157 @@
 import type { Edition } from "@/lib/predictions";
 
 export const editions: Edition[] = [
+  // ── 2026-09-05 ─────────────────────────────────────────────────────────
+  {
+    date: "2026-09-05",
+    headline: "Six low-variance double-chance and handicap plays across five leagues.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-09-05-feature-rom-ata",
+          league: "Serie A",
+          country: "Italy",
+          kickoff: "2026-09-05T16:00:00Z",
+          home: "AS Roma",
+          away: "Atalanta",
+          market: "Double Chance",
+          selection: "1X",
+          odds: 1.38,
+          confidence: 80,
+          status: "pending",
+          analysis:
+            "Roma are unbeaten at the Olimpico this season and Atalanta have won just once on the road in their last seven.",
+        },
+        {
+          id: "2026-09-05-feature-krs-krd",
+          league: "Russian Premier League",
+          country: "Russia",
+          kickoff: "2026-09-05T15:00:00Z",
+          home: "Krylya Sovetov",
+          away: "Krasnodar",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.32,
+          confidence: 84,
+          status: "pending",
+          analysis:
+            "Krasnodar are unbeaten in their last 8 league away days and sit well clear of Krylya Sovetov in the table.",
+        },
+        {
+          id: "2026-09-05-feature-hbk-nsj",
+          league: "Kvindeligaen",
+          country: "Denmark",
+          kickoff: "2026-09-05T17:00:00Z",
+          home: "HB Køge",
+          away: "Nordsjælland (W)",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.28,
+          confidence: 85,
+          status: "pending",
+          analysis:
+            "Nordsjælland's women's side have lost just once all season; HB Køge have struggled for goals at home.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-09-05-scotprem-stm-cel",
+        league: "Scottish Premiership",
+        country: "Scotland",
+        kickoff: "2026-09-05T14:00:00Z",
+        home: "St Mirren",
+        away: "Celtic",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.25,
+        confidence: 88,
+        status: "pending",
+        analysis:
+          "Celtic have won 10 of their last 11 league away trips and average 2.4 goals a game on the road this season.",
+      },
+      {
+        id: "2026-09-05-bulfirst-lev-csk",
+        league: "First League",
+        country: "Bulgaria",
+        kickoff: "2026-09-05T15:00:00Z",
+        home: "Levski Sofia",
+        away: "CSKA 1948 Sofia",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.3,
+        confidence: 82,
+        status: "pending",
+        analysis:
+          "Levski are unbeaten at home this campaign and CSKA 1948 have won only twice away from home all season.",
+      },
+      {
+        id: "2026-09-05-seriea-rom-ata",
+        league: "Serie A",
+        country: "Italy",
+        kickoff: "2026-09-05T16:00:00Z",
+        home: "AS Roma",
+        away: "Atalanta",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.38,
+        confidence: 80,
+        status: "pending",
+        analysis:
+          "Roma are unbeaten at the Olimpico this season and Atalanta have won just once on the road in their last seven.",
+      },
+      {
+        id: "2026-09-05-rpl-krs-krd",
+        league: "Russian Premier League",
+        country: "Russia",
+        kickoff: "2026-09-05T15:00:00Z",
+        home: "Krylya Sovetov",
+        away: "Krasnodar",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.32,
+        confidence: 84,
+        status: "pending",
+        analysis:
+          "Krasnodar are unbeaten in their last 8 league away days and sit well clear of Krylya Sovetov in the table.",
+      },
+    ],
+    vip: [
+      {
+        id: "2026-09-05-kvindeliga-hbk-nsj",
+        league: "Kvindeligaen",
+        country: "Denmark",
+        kickoff: "2026-09-05T17:00:00Z",
+        home: "HB Køge",
+        away: "Nordsjælland (W)",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.28,
+        confidence: 85,
+        status: "pending",
+        analysis:
+          "Nordsjælland's women's side have lost just once all season; HB Køge have struggled for goals at home.",
+      },
+      {
+        id: "2026-09-05-swelower-has-kri",
+        league: "Ettan",
+        country: "Sweden",
+        kickoff: "2026-09-05T18:00:00Z",
+        home: "Hässleholms IF",
+        away: "Kristianstad",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.35,
+        confidence: 81,
+        status: "pending",
+        analysis:
+          "Hässleholms IF are unbeaten at home this season while Kristianstad have won just one of their last six away.",
+      },
+    ],
+  },
+
   // ── 2026-09-01 ─────────────────────────────────────────────────────────
   {
     date: "2026-09-01",
