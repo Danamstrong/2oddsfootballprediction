@@ -6,7 +6,12 @@ import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
-import { getCurrentEdition, getEditions, performance } from "@/lib/predictions";
+import {
+  combinedOdds,
+  getCurrentEdition,
+  getEditions,
+  performance,
+} from "@/lib/predictions";
 import { readVipAccess } from "@/lib/vip-access";
 
 export default async function Home() {
@@ -17,6 +22,7 @@ export default async function Home() {
 
   // The 6 interleaved rows for the slip table: free picks first, then VIP.
   const rows = [...edition.free, ...edition.vip].slice(0, 6);
+  const vipAccaOdds = combinedOdds(edition.vip);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -72,12 +78,19 @@ export default async function Home() {
               >
                 VIP picks
               </h2>
-              {vipAccess && (
-                <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-                  <ShieldCheck className="size-3.5" aria-hidden />
-                  VIP active
-                </p>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                {edition.vip.length > 1 && (
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                    {edition.vip.length}-leg acca &middot; {vipAccaOdds.toFixed(2)} combined odds
+                  </p>
+                )}
+                {vipAccess && (
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                    <ShieldCheck className="size-3.5" aria-hidden />
+                    VIP active
+                  </p>
+                )}
+              </div>
             </div>
 
             {vipAccess ? (
