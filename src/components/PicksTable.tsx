@@ -55,30 +55,32 @@ export function PicksTable({ rows, isVipActive }: PicksTableProps) {
           return (
             <li
               key={pick.id}
-              className="relative flex items-center gap-4 px-6 py-4"
+              className="relative flex items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4"
             >
               <span className="grid size-7 shrink-0 place-items-center rounded-full bg-white/10 text-xs font-bold tabular-nums">
                 {index + 1}
               </span>
               <div
-                className={`min-w-0 flex-1 ${unlocked ? "" : "select-none blur-sm"}`}
+                className={`flex min-w-0 flex-1 items-center justify-between gap-2 ${unlocked ? "" : "select-none blur-sm"}`}
                 aria-hidden={!unlocked}
               >
-                <p className="truncate text-sm font-semibold">
-                  {pick.home} <span className="text-zinc-500">v</span> {pick.away}
-                </p>
-                <p className="truncate text-xs text-zinc-400">
-                  {pick.league} &middot; {formatKickoff(pick.kickoff)} &middot;{" "}
-                  {pick.market}:{" "}
-                  <span className="text-emerald-400">{pick.selection}</span>
-                </p>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold">
+                    {pick.home} <span className="text-zinc-500">v</span> {pick.away}
+                  </p>
+                  <p className="max-w-[180px] truncate text-xs text-zinc-400 sm:max-w-none">
+                    {pick.league} &middot; {formatKickoff(pick.kickoff)}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <span className="shrink-0 rounded bg-emerald-500/20 px-2 py-1 text-xs font-bold text-emerald-400">
+                    {pick.selection}
+                  </span>
+                  <span className="shrink-0 text-sm font-bold tabular-nums">
+                    {pick.odds.toFixed(2)}
+                  </span>
+                </div>
               </div>
-              <span
-                className={`shrink-0 text-sm font-bold tabular-nums ${unlocked ? "" : "blur-sm"}`}
-                aria-hidden={!unlocked}
-              >
-                {pick.odds.toFixed(2)}
-              </span>
 
               {!unlocked && (
                 <div className="absolute inset-0 flex items-center justify-center gap-2 bg-zinc-950/40 px-6 backdrop-blur-[1px]">
