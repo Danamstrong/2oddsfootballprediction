@@ -18,6 +18,8 @@ export interface PicksTableProps {
   rows: MatchPick[];
   /** From the signed VIP cookie — unlocks every row and hides all ad prompts. */
   isVipActive: boolean;
+  /** Show a WON/LOSS pill per row (settled results view) instead of nothing. */
+  showResult?: boolean;
 }
 
 /**
@@ -25,7 +27,7 @@ export interface PicksTableProps {
  * visible; even rows are blurred behind a "Watch Ad to Unlock" prompt until the
  * visitor either opens the Monetag Direct Link for that row or holds active VIP.
  */
-export function PicksTable({ rows, isVipActive }: PicksTableProps) {
+export function PicksTable({ rows, isVipActive, showResult = false }: PicksTableProps) {
   // Row indices the visitor has unlocked by engaging with the ad.
   const [unlockedRows, setUnlockedRows] = useState<number[]>([]);
 
@@ -79,6 +81,17 @@ export function PicksTable({ rows, isVipActive }: PicksTableProps) {
                   <span className="shrink-0 text-sm font-bold tabular-nums">
                     {pick.odds.toFixed(2)}
                   </span>
+                  {showResult && (pick.status === "won" || pick.status === "lost") && (
+                    <span
+                      className={`shrink-0 rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                        pick.status === "won"
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : "bg-rose-500/20 text-rose-400"
+                      }`}
+                    >
+                      {pick.status === "won" ? "Won" : "Loss"}
+                    </span>
+                  )}
                 </div>
               </div>
 

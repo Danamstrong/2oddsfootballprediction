@@ -1,13 +1,19 @@
 import type { MatchPick, Slip } from "@/lib/predictions";
 import { JsonLd } from "@/components/JsonLd";
 import { predictionJsonLd } from "@/lib/seo";
-import { PicksTable } from "@/components/PicksTable";
+import { DailyPicksTabs } from "@/components/DailyPicksTabs";
 
 export interface DailyTicketProps {
   /** The feature slip — used only for the SportsEvent/OddsPrediction JSON-LD. */
   slip: Slip;
-  /** The interleaved rows shown in the table (up to 6). */
+  /** Today's rows shown in the table (up to 6), default-active tab. */
   rows: MatchPick[];
+  /** Short label for the "Today" tab, e.g. "6 Sep". */
+  todayLabel: string;
+  /** Yesterday's settled rows, if that edition exists. */
+  yesterdayRows: MatchPick[];
+  /** Short label for the "Yesterday" tab, e.g. "5 Sep". */
+  yesterdayLabel: string;
   /** From the signed VIP cookie — unlocks every row and hides all ad prompts. */
   isVipActive: boolean;
   /** ISO date of the edition — enables the JSON-LD block. */
@@ -17,6 +23,9 @@ export interface DailyTicketProps {
 export function DailyTicket({
   slip,
   rows,
+  todayLabel,
+  yesterdayRows,
+  yesterdayLabel,
   isVipActive,
   editionDate,
 }: DailyTicketProps) {
@@ -35,7 +44,13 @@ export function DailyTicket({
         />
       )}
 
-      <PicksTable rows={rows} isVipActive={isVipActive} />
+      <DailyPicksTabs
+        todayRows={rows}
+        todayLabel={todayLabel}
+        yesterdayRows={yesterdayRows}
+        yesterdayLabel={yesterdayLabel}
+        isVipActive={isVipActive}
+      />
 
       <p className="border-t border-white/10 px-6 py-3 text-center text-[11px] text-zinc-500">
         Odds move constantly &mdash; confirm prices with your bookmaker before staking.

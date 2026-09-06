@@ -8,9 +8,12 @@ import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import {
   combinedOdds,
+  formatShortDate,
   getCurrentEdition,
+  getEdition,
   getEditions,
   performance,
+  previousIsoDate,
 } from "@/lib/predictions";
 import { readVipAccess } from "@/lib/vip-access";
 
@@ -23,6 +26,12 @@ export default async function Home() {
   // The 6 interleaved rows for the slip table: free picks first, then VIP.
   const rows = [...edition.free, ...edition.vip].slice(0, 6);
   const vipAccaOdds = combinedOdds(edition.vip);
+
+  // The prior day's edition, if published, powers the "Yesterday" results tab.
+  const yesterdayEdition = getEdition(previousIsoDate(edition.date));
+  const yesterdayRows = yesterdayEdition
+    ? [...yesterdayEdition.free, ...yesterdayEdition.vip].slice(0, 6)
+    : [];
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -64,6 +73,9 @@ export default async function Home() {
         <DailyTicket
           slip={edition.feature}
           rows={rows}
+          todayLabel={formatShortDate(edition.date)}
+          yesterdayRows={yesterdayRows}
+          yesterdayLabel={yesterdayEdition ? formatShortDate(yesterdayEdition.date) : ""}
           isVipActive={isVipActive}
           editionDate={edition.date}
         />

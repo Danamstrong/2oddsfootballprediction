@@ -209,6 +209,27 @@ export function formatEditionDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
+const SHORT_MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+/**
+ * Short form for tab labels, e.g. "5 Sep". Built manually rather than via
+ * Intl — en-GB's short month for September is the 4-letter "Sept".
+ */
+export function formatShortDate(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  return `${d.getUTCDate()} ${SHORT_MONTHS[d.getUTCMonth()]}`;
+}
+
+/** The ISO date one day before the given ISO date. */
+export function previousIsoDate(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export function formatNGN(amount: number): string {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",

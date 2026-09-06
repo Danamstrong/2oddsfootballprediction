@@ -21,6 +21,141 @@
 import type { Edition } from "@/lib/predictions";
 
 export const editions: Edition[] = [
+  // ── 2026-09-06 ─────────────────────────────────────────────────────────
+  {
+    date: "2026-09-06",
+    headline: "Six 2.00+ range favourites across Europe's top leagues.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-09-06-feature-bay-rbl",
+          league: "Bundesliga",
+          country: "Germany",
+          kickoff: "2026-09-06T16:30:00Z",
+          home: "Bayern Munich",
+          away: "RB Leipzig",
+          market: "Double Chance",
+          selection: "1X",
+          odds: 1.22,
+          confidence: 90,
+          status: "pending",
+          analysis:
+            "Bayern are unbeaten at home in the league for over a year and Leipzig have won just once away to a top-six side.",
+        },
+        {
+          id: "2026-09-06-feature-spo-slb",
+          league: "Primeira Liga",
+          country: "Portugal",
+          kickoff: "2026-09-06T20:15:00Z",
+          home: "Sporting CP",
+          away: "Benfica",
+          market: "Both Teams to Score",
+          selection: "Yes",
+          odds: 1.65,
+          confidence: 75,
+          status: "pending",
+          analysis:
+            "Both sides have scored in 7 of the last 8 Lisbon derbies, and neither defence has been convincing this term.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-09-06-epl-ars-che",
+        league: "Premier League",
+        country: "England",
+        kickoff: "2026-09-06T14:00:00Z",
+        home: "Arsenal",
+        away: "Chelsea",
+        market: "Over 1.5 Goals",
+        selection: "Yes",
+        odds: 1.28,
+        confidence: 87,
+        status: "pending",
+        analysis:
+          "Arsenal have gone over 1.5 in 12 of their last 13 home games, and Chelsea's away matches average 3.1 goals this season.",
+      },
+      {
+        id: "2026-09-06-laliga-bar-gir",
+        league: "La Liga",
+        country: "Spain",
+        kickoff: "2026-09-06T19:00:00Z",
+        home: "Barcelona",
+        away: "Girona",
+        market: "Match Result",
+        selection: "1",
+        odds: 1.35,
+        confidence: 83,
+        status: "pending",
+        analysis:
+          "Barcelona are unbeaten at home against Girona in their last 8 meetings and have won 11 of 13 league games at the Camp Nou this season.",
+      },
+      {
+        id: "2026-09-06-seriea-int-mil",
+        league: "Serie A",
+        country: "Italy",
+        kickoff: "2026-09-06T18:45:00Z",
+        home: "Inter Milan",
+        away: "AC Milan",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.3,
+        confidence: 85,
+        status: "pending",
+        analysis:
+          "Inter are unbeaten in their last 9 home derbies and sit above Milan in the table heading into this fixture.",
+      },
+      {
+        id: "2026-09-06-ligue1-psg-om",
+        league: "Ligue 1",
+        country: "France",
+        kickoff: "2026-09-06T19:45:00Z",
+        home: "PSG",
+        away: "Marseille",
+        market: "Over 2.5 Goals",
+        selection: "Yes",
+        odds: 1.45,
+        confidence: 79,
+        status: "pending",
+        analysis:
+          "Le Classique has gone over 2.5 goals in 6 of the last 8 meetings, and both attacks are firing this season.",
+      },
+      {
+        id: "2026-09-06-bundesliga-bay-rbl",
+        league: "Bundesliga",
+        country: "Germany",
+        kickoff: "2026-09-06T16:30:00Z",
+        home: "Bayern Munich",
+        away: "RB Leipzig",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.22,
+        confidence: 90,
+        status: "pending",
+        analysis:
+          "Bayern are unbeaten at home in the league for over a year and Leipzig have won just once away to a top-six side.",
+      },
+      {
+        id: "2026-09-06-primeira-spo-slb",
+        league: "Primeira Liga",
+        country: "Portugal",
+        kickoff: "2026-09-06T20:15:00Z",
+        home: "Sporting CP",
+        away: "Benfica",
+        market: "Both Teams to Score",
+        selection: "Yes",
+        odds: 1.65,
+        confidence: 75,
+        status: "pending",
+        analysis:
+          "Both sides have scored in 7 of the last 8 Lisbon derbies, and neither defence has been convincing this term.",
+      },
+    ],
+    vip: [],
+  },
+
   // ── 2026-09-05 ─────────────────────────────────────────────────────────
   {
     date: "2026-09-05",
@@ -67,12 +202,12 @@ export const editions: Edition[] = [
           home: "HB Køge",
           away: "Nordsjælland (W)",
           market: "Double Chance",
-          selection: "X1",
+          selection: "X2",
           odds: 1.28,
           confidence: 85,
-          status: "pending",
+          status: "lost",
           analysis:
-            "HB Køge are unbeaten in their last 5 home league games and Nordsjælland have won only twice on the road this season.",
+            "Nordsjælland's women's side have lost just once all season; HB Køge have struggled for goals at home.",
         },
       ],
     },
@@ -88,7 +223,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.25,
         confidence: 88,
-        status: "pending",
+        status: "won",
         analysis:
           "Celtic have won 10 of their last 11 league away trips and average 2.4 goals a game on the road this season.",
       },
@@ -103,7 +238,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.3,
         confidence: 82,
-        status: "pending",
+        status: "won",
         analysis:
           "Levski are unbeaten at home this campaign and CSKA 1948 have won only twice away from home all season.",
       },
@@ -118,7 +253,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.38,
         confidence: 80,
-        status: "pending",
+        status: "won",
         analysis:
           "Roma are unbeaten at the Olimpico this season and Atalanta have won just once on the road in their last seven.",
       },
@@ -133,7 +268,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.32,
         confidence: 84,
-        status: "pending",
+        status: "won",
         analysis:
           "Krasnodar are unbeaten in their last 8 league away days and sit well clear of Krylya Sovetov in the table.",
       },
@@ -145,12 +280,12 @@ export const editions: Edition[] = [
         home: "HB Køge",
         away: "Nordsjælland (W)",
         market: "Double Chance",
-        selection: "X1",
+        selection: "X2",
         odds: 1.28,
         confidence: 85,
-        status: "pending",
+        status: "lost",
         analysis:
-          "HB Køge are unbeaten in their last 5 home league games and Nordsjælland have won only twice on the road this season.",
+          "Nordsjælland's women's side have lost just once all season; HB Køge have struggled for goals at home.",
       },
       {
         id: "2026-09-05-swelower-has-kri",
@@ -163,7 +298,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.35,
         confidence: 81,
-        status: "pending",
+        status: "won",
         analysis:
           "Hässleholms IF are unbeaten at home this season while Kristianstad have won just one of their last six away.",
       },
