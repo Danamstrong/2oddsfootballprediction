@@ -153,7 +153,23 @@ export const editions: Edition[] = [
           "Both sides have scored in 7 of the last 8 Lisbon derbies, and neither defence has been convincing this term.",
       },
     ],
-    vip: [],
+    vip: [
+      {
+        id: "2026-09-06-k4league-yng-she",
+        league: "K4 League",
+        country: "South Korea",
+        kickoff: "2026-09-06T07:00:00Z",
+        home: "Yangpyeong FC",
+        away: "Siheung Citizen",
+        market: "Over 2.5 Goals",
+        selection: "Yes",
+        odds: 1.85,
+        confidence: 90,
+        status: "pending",
+        analysis:
+          "Our model rates this an estimated 78% probability of Over 2.5 Goals — both sides have shipped goals for fun this season, with Yangpyeong's last 6 home games and Siheung's last 5 away trips all going over 2.5.",
+      },
+    ],
   },
 
   // ── 2026-09-05 ─────────────────────────────────────────────────────────

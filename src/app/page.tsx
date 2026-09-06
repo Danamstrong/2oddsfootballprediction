@@ -91,6 +91,11 @@ export default async function Home() {
                 VIP picks
               </h2>
               <div className="flex flex-wrap items-center gap-2">
+                {edition.vip.length === 1 && (
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
+                    Single value pick &middot; {edition.vip[0].odds.toFixed(2)} target odds
+                  </p>
+                )}
                 {edition.vip.length > 1 && (
                   <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
                     {edition.vip.length}-leg acca &middot; {vipAccaOdds.toFixed(2)} combined odds
@@ -124,7 +129,7 @@ export default async function Home() {
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/60 text-center backdrop-blur-[2px] dark:bg-black/60">
                   <Lock className="size-6 text-emerald-500" aria-hidden />
                   <p className="max-w-xs text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    {edition.vip.length} VIP picks
+                    {edition.vip.length} VIP pick{edition.vip.length === 1 ? "" : "s"}
                     {edition.vipFeature ? " + VIP banker builder" : ""} locked.
                   </p>
                   <Link
