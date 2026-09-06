@@ -49,6 +49,7 @@ export const NAV_LINKS: NavLink[] = [
   { name: "Predictions", href: "/" },
   { name: "Live Scores", href: "/livescores" },
   { name: "Archive", href: "/archive" },
+  { name: "Calculator", href: "/calculator" },
   { name: "Blog", href: "/blog" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
