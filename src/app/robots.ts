@@ -13,7 +13,7 @@ export default function robots(): MetadataRoute.Robots {
         "/livescores",
         "/blog",
       ],
-      disallow: ["/api/"],
+      disallow: ["/api/", "/vip", "/login"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

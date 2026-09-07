@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ShieldCheck, BarChart3, Bell, Lock, Crown } from "lucide-react";
+import { ShieldCheck, BarChart3, Bell, Crown, ArrowRight } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
-import { PredictionCard } from "@/components/PredictionCard";
+import { LockedVipPreview } from "@/components/LockedVipPreview";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
-import { RestoreAccessForm } from "@/components/RestoreAccessForm";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import {
@@ -15,13 +14,13 @@ import {
   performance,
   previousIsoDate,
 } from "@/lib/predictions";
-import { readVipAccess } from "@/lib/vip-access";
+import { getViewerVipStatus } from "@/lib/vip-status";
 
 export default async function Home() {
   const edition = getCurrentEdition();
   const record = performance(getEditions());
-  const vipAccess = await readVipAccess();
-  const isVipActive = Boolean(vipAccess);
+  // Session + fresh DB subscription check — never a client-set cookie.
+  const { isVip } = await getViewerVipStatus();
 
   // The 6 interleaved rows for the slip table: free picks first, then VIP.
   const rows = [...edition.free, ...edition.vip].slice(0, 6);
@@ -76,7 +75,7 @@ export default async function Home() {
           todayLabel={formatShortDate(edition.date)}
           yesterdayRows={yesterdayRows}
           yesterdayLabel={yesterdayEdition ? formatShortDate(yesterdayEdition.date) : ""}
-          isVipActive={isVipActive}
+          isVipActive={isVip}
           editionDate={edition.date}
         />
 
@@ -101,7 +100,7 @@ export default async function Home() {
                     {edition.vip.length}-leg acca &middot; {vipAccaOdds.toFixed(2)} combined odds
                   </p>
                 )}
-                {vipAccess && (
+                {isVip && (
                   <p className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
                     <ShieldCheck className="size-3.5" aria-hidden />
                     VIP active
@@ -110,36 +109,30 @@ export default async function Home() {
               </div>
             </div>
 
-            {vipAccess ? (
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {edition.vip.map((pick) => (
-                  <PredictionCard key={pick.id} pick={pick} />
-                ))}
+            {/*
+              Real pick data (match, market, selection, odds, analysis) is
+              never rendered here — not even blurred — for a non-VIP viewer.
+              CSS blur still ships the underlying HTML, which is exactly the
+              kind of leak this page used to have. VIP members are pointed at
+              /vip, a Server Component that re-checks the session + Supabase
+              subscription on every request before touching real pick data.
+            */}
+            {isVip ? (
+              <div className="flex flex-col items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-900 dark:bg-emerald-950/40">
+                <ShieldCheck className="size-6 text-emerald-500" aria-hidden />
+                <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+                  Your VIP access is active &mdash; today&rsquo;s picks are ready.
+                </p>
+                <Link
+                  href="/vip"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
+                >
+                  View VIP picks
+                  <ArrowRight className="size-4" aria-hidden />
+                </Link>
               </div>
             ) : (
-              <div className="relative">
-                <div
-                  aria-hidden
-                  className="pointer-events-none grid select-none gap-5 blur-sm sm:grid-cols-2 lg:grid-cols-3"
-                >
-                  {edition.vip.map((pick) => (
-                    <PredictionCard key={pick.id} pick={pick} />
-                  ))}
-                </div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-white/60 text-center backdrop-blur-[2px] dark:bg-black/60">
-                  <Lock className="size-6 text-emerald-500" aria-hidden />
-                  <p className="max-w-xs text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                    {edition.vip.length} VIP pick{edition.vip.length === 1 ? "" : "s"}
-                    {edition.vipFeature ? " + VIP banker builder" : ""} locked.
-                  </p>
-                  <Link
-                    href="#vip-heading"
-                    className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-600"
-                  >
-                    Unlock with VIP
-                  </Link>
-                </div>
-              </div>
+              <LockedVipPreview count={edition.vip.length} />
             )}
           </section>
         )}
@@ -167,7 +160,17 @@ export default async function Home() {
           </div>
 
           <MultiCurrencyPayButton />
-          {!vipAccess && <RestoreAccessForm />}
+          {!isVip && (
+            <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+              Already paid?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+              >
+                Sign in to view your picks
+              </Link>
+            </p>
+          )}
         </section>
 
         {/* Testimonials */}

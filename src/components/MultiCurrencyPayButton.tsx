@@ -162,53 +162,27 @@ export function MultiCurrencyPayButton({
       callback: (response) => {
         const completed =
           response.status === "successful" || response.status === "completed";
+        setPending(false);
         if (!completed || !response.transaction_id) {
-          setPending(false);
           setError("Payment was not completed. You have not been charged.");
           return;
         }
-        setNotice("Payment received — verifying with our server…");
-        void fetch("/api/flutterwave/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            transaction_id: response.transaction_id,
-            tx_ref: response.tx_ref,
-            tier: plan,
-            currency: currency.code,
-            amount,
-          }),
-        })
-          .then(async (res) => {
-            const data = await res.json().catch(() => ({}));
-            if (res.ok && data.status === "success") {
-              setNotice(
-                "Payment verified — your VIP access is active. Check your email for the login link.",
-              );
-              // The verify response set the VIP cookie; re-render server
-              // components so the locked picks unblur immediately.
-              router.refresh();
-              onVerified?.({
-                txRef: response.tx_ref,
-                transactionId: response.transaction_id!,
-                currency: currency.code,
-                plan,
-              });
-            } else {
-              setNotice(null);
-              setError(
-                data.message ||
-                  `We received your payment but could not verify it yet. Contact support with reference ${response.tx_ref}.`,
-              );
-            }
-          })
-          .catch(() => {
-            setNotice(null);
-            setError(
-              `Payment received but verification did not run. Contact support with reference ${response.tx_ref}.`,
-            );
-          })
-          .finally(() => setPending(false));
+        // We do NOT trust this client-side callback to grant access — it can
+        // be spoofed by anyone with devtools. Flutterwave's server-to-server
+        // webhook (/api/webhooks/flutterwave) is the only thing that credits
+        // VIP status, and it's already in flight. Send the visitor to sign
+        // in; by the time they open the magic-link email the webhook will
+        // typically have landed.
+        setNotice(
+          "Payment received — activating your VIP access now. Sign in with the same email to unlock your picks.",
+        );
+        onVerified?.({
+          txRef: response.tx_ref,
+          transactionId: response.transaction_id,
+          currency: currency.code,
+          plan,
+        });
+        router.push(`/login?email=${encodeURIComponent(email)}&callbackUrl=%2Fvip`);
       },
       onclose: () => setPending(false),
     });
