@@ -8,6 +8,7 @@ const statusStyles: Record<PickStatus, string> = {
   won: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   lost: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-400",
   void: "bg-zinc-100 text-zinc-500 line-through dark:bg-zinc-800 dark:text-zinc-400",
+  postponed: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
 };
 
 const statusLabel: Record<PickStatus, string> = {
@@ -15,6 +16,7 @@ const statusLabel: Record<PickStatus, string> = {
   won: "Won",
   lost: "Lost",
   void: "Void",
+  postponed: "Postponed",
 };
 
 export interface PredictionCardProps {

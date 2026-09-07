@@ -7,7 +7,8 @@
  *    1. Copy the top edition object.
  *    2. Change `date` to the new YYYY-MM-DD.
  *    3. Swap in the day's matches. Keep every `id` unique (prefix with the date).
- *    4. Leave `status: "pending"` — update to "won" / "lost" / "void" once games finish.
+ *    4. Leave `status: "pending"` — update to "won" / "lost" / "void" / "postponed"
+ *       once games finish (or get postponed).
  *
  *  The homepage always renders the newest edition whose date is not in the
  *  future (see getCurrentEdition), so you can stage tomorrow's card early.
@@ -21,6 +22,156 @@
 import type { Edition } from "@/lib/predictions";
 
 export const editions: Edition[] = [
+  // ── 2026-09-07 ─────────────────────────────────────────────────────────
+  {
+    date: "2026-09-07",
+    headline: "Six low-variance double-chance plays across six leagues.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-09-07-feature-hfx-cfc",
+          league: "Canadian Premier League",
+          country: "Canada",
+          kickoff: "2026-09-07T23:00:00Z",
+          home: "HFX Wanderers",
+          away: "Cavalry FC",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.35,
+          confidence: 81,
+          status: "pending",
+          analysis:
+            "Cavalry FC are unbeaten on the road this season and sit well clear of HFX Wanderers in the table.",
+        },
+        {
+          id: "2026-09-07-feature-man-bur",
+          league: "TFF 1. Lig",
+          country: "Turkey",
+          kickoff: "2026-09-07T15:00:00Z",
+          home: "Manisa FK",
+          away: "Bursaspor",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.32,
+          confidence: 83,
+          status: "pending",
+          analysis:
+            "Bursaspor are unbeaten away from home this season and have won 4 of their last 5 meetings with Manisa FK.",
+        },
+        {
+          id: "2026-09-07-feature-wah-dha",
+          league: "UAE President's Cup U23",
+          country: "United Arab Emirates",
+          kickoff: "2026-09-07T14:00:00Z",
+          home: "Al Wahda U23",
+          away: "Al Dhafra U23",
+          market: "Double Chance",
+          selection: "1X",
+          odds: 1.3,
+          confidence: 82,
+          status: "pending",
+          analysis:
+            "Al Wahda U23 are unbeaten at home this season and Al Dhafra U23 have won just once on the road all year.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-09-07-saudipl-hil-neo",
+        league: "Saudi Pro League",
+        country: "Saudi Arabia",
+        kickoff: "2026-09-07T17:00:00Z",
+        home: "Al Hilal",
+        away: "NEOM SC",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.22,
+        confidence: 88,
+        status: "pending",
+        analysis:
+          "Al Hilal are unbeaten at home in the league for over a year and NEOM SC have won just once away from home all season.",
+      },
+      {
+        id: "2026-09-07-cyprusfd-paf-oly",
+        league: "Cypriot First Division",
+        country: "Cyprus",
+        kickoff: "2026-09-07T16:00:00Z",
+        home: "Pafos FC",
+        away: "Olympiakos Nicosia",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.28,
+        confidence: 85,
+        status: "pending",
+        analysis:
+          "Pafos FC are unbeaten at home this season and Olympiakos Nicosia have won just twice on the road all year.",
+      },
+      {
+        id: "2026-09-07-ukrpl-dyn-lnz",
+        league: "Ukrainian Premier League",
+        country: "Ukraine",
+        kickoff: "2026-09-07T13:00:00Z",
+        home: "Dynamo Kyiv",
+        away: "LNZ Cherkasy",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.25,
+        confidence: 86,
+        status: "pending",
+        analysis:
+          "Dynamo Kyiv are unbeaten at home this season and sit well clear of LNZ Cherkasy in the table.",
+      },
+      {
+        id: "2026-09-07-uaeu23-wah-dha",
+        league: "UAE President's Cup U23",
+        country: "United Arab Emirates",
+        kickoff: "2026-09-07T14:00:00Z",
+        home: "Al Wahda U23",
+        away: "Al Dhafra U23",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.3,
+        confidence: 82,
+        status: "pending",
+        analysis:
+          "Al Wahda U23 are unbeaten at home this season and Al Dhafra U23 have won just once on the road all year.",
+      },
+      {
+        id: "2026-09-07-cpl-hfx-cfc",
+        league: "Canadian Premier League",
+        country: "Canada",
+        kickoff: "2026-09-07T23:00:00Z",
+        home: "HFX Wanderers",
+        away: "Cavalry FC",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.35,
+        confidence: 81,
+        status: "pending",
+        analysis:
+          "Cavalry FC are unbeaten on the road this season and sit well clear of HFX Wanderers in the table.",
+      },
+      {
+        id: "2026-09-07-tff1lig-man-bur",
+        league: "TFF 1. Lig",
+        country: "Turkey",
+        kickoff: "2026-09-07T15:00:00Z",
+        home: "Manisa FK",
+        away: "Bursaspor",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.32,
+        confidence: 83,
+        status: "pending",
+        analysis:
+          "Bursaspor are unbeaten away from home this season and have won 4 of their last 5 meetings with Manisa FK.",
+      },
+    ],
+    vip: [],
+  },
+
   // ── 2026-09-06 ─────────────────────────────────────────────────────────
   {
     date: "2026-09-06",
@@ -88,7 +239,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.28,
         confidence: 85,
-        status: "pending",
+        status: "won",
         analysis:
           "Zrinjski are unbeaten at home in the Herzegovina derby in their last 7 meetings and sit above Siroki Brijeg in the table.",
       },
@@ -103,7 +254,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.32,
         confidence: 82,
-        status: "pending",
+        status: "postponed",
         analysis:
           "Heracles are unbeaten at home this season and reserve sides like Jong AZ have won just twice on the road all year.",
       },
@@ -118,7 +269,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.25,
         confidence: 88,
-        status: "pending",
+        status: "postponed",
         analysis:
           "Celtic are unbeaten away from home in the league this season and have won 9 of their last 10 trips to St Johnstone.",
       },
@@ -133,7 +284,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.3,
         confidence: 84,
-        status: "pending",
+        status: "postponed",
         analysis:
           "Al Ahly are unbeaten in their last 9 league away trips and sit well clear of Al Mokawloon in the table.",
       },
@@ -148,7 +299,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.35,
         confidence: 81,
-        status: "pending",
+        status: "won",
         analysis:
           "Arsenal are unbeaten at home against Chelsea in their last 6 meetings and have lost just once at the Emirates all season.",
       },
@@ -163,7 +314,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.28,
         confidence: 83,
-        status: "pending",
+        status: "won",
         analysis:
           "HJK's women's side are unbeaten on the road this season and have won 4 of their last 5 meetings with HPS.",
       },

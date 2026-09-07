@@ -81,17 +81,26 @@ export function PicksTable({ rows, isVipActive, showResult = false }: PicksTable
                   <span className="shrink-0 text-sm font-bold tabular-nums">
                     {pick.odds.toFixed(2)}
                   </span>
-                  {showResult && (pick.status === "won" || pick.status === "lost") && (
-                    <span
-                      className={`shrink-0 rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                        pick.status === "won"
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-rose-500/20 text-rose-400"
-                      }`}
-                    >
-                      {pick.status === "won" ? "Won" : "Loss"}
-                    </span>
-                  )}
+                  {showResult &&
+                    (pick.status === "won" ||
+                      pick.status === "lost" ||
+                      pick.status === "postponed") && (
+                      <span
+                        className={`shrink-0 rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                          pick.status === "won"
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : pick.status === "lost"
+                              ? "bg-rose-500/20 text-rose-400"
+                              : "bg-amber-500/20 text-amber-400"
+                        }`}
+                      >
+                        {pick.status === "won"
+                          ? "Won"
+                          : pick.status === "lost"
+                            ? "Loss"
+                            : "Postponed"}
+                      </span>
+                    )}
                 </div>
               </div>
 

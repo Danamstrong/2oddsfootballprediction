@@ -10,7 +10,7 @@ import { editions } from "@/data/editions";
 
 // --- Model ---------------------------------------------------------------
 
-export type PickStatus = "pending" | "won" | "lost" | "void";
+export type PickStatus = "pending" | "won" | "lost" | "void" | "postponed";
 
 /** Which audience a pick is published to. */
 export type Audience = "free" | "vip";
@@ -159,9 +159,11 @@ export function potentialReturn(
 }
 
 /** Aggregate status of a slip: lost if any leg lost, else pending if any leg
- *  pending, else won. Void legs are ignored. */
+ *  pending, else won. Void and postponed legs are ignored. */
 export function slipStatus(selections: Pick<MatchPick, "status">[]): PickStatus {
-  const live = selections.filter((s) => s.status !== "void");
+  const live = selections.filter(
+    (s) => s.status !== "void" && s.status !== "postponed",
+  );
   if (live.some((s) => s.status === "lost")) return "lost";
   if (live.some((s) => s.status === "pending")) return "pending";
   if (live.length === 0) return "void";
@@ -175,9 +177,19 @@ export interface Performance {
   strikeRatePct: number;
 }
 
-/** Win record across a set of editions (settled single picks only). */
+/**
+ * Win record across a set of editions (settled single picks only).
+ *
+ * Deliberately excludes `feature`/`vipFeature` — those legs are duplicate
+ * MatchPick objects for matches already published in `free`/`vip` (built
+ * for the "Daily 2-Odds Feature" combo), so counting them too would settle
+ * the same real-world result twice. `getArchiveRows` uses the same free +
+ * vip pool for this reason.
+ */
 export function performance(list: Edition[] = getEditions()): Performance {
-  const picks = list.flatMap(allPicks).filter((p) => p.status !== "pending" && p.status !== "void");
+  const picks = list
+    .flatMap((edition) => [...edition.free, ...edition.vip])
+    .filter((p) => p.status === "won" || p.status === "lost");
   const won = picks.filter((p) => p.status === "won").length;
   const settled = picks.length;
   return {
