@@ -169,7 +169,38 @@ export const editions: Edition[] = [
           "Bursaspor are unbeaten away from home this season and have won 4 of their last 5 meetings with Manisa FK.",
       },
     ],
-    vip: [],
+    vip: [
+      {
+        id: "2026-09-07-peruliga1-pir-car",
+        league: "Liga 1",
+        country: "Peru",
+        kickoff: "2026-09-07T23:30:00Z",
+        home: "Pirata",
+        away: "Carlos Mannucci",
+        market: "Under 2.5 Goals",
+        selection: "Yes",
+        odds: 1.75,
+        confidence: 84,
+        status: "pending",
+        analysis:
+          "Both sides have been tight defensively this season — Pirata have gone under 2.5 in 6 of their last 8 home games, and Carlos Mannucci's away matches have followed the same pattern.",
+      },
+      {
+        id: "2026-09-07-ligue2-nan-nan",
+        league: "Ligue 2",
+        country: "France",
+        kickoff: "2026-09-07T19:00:00Z",
+        home: "Nantes",
+        away: "AS Nancy",
+        market: "Over 2.5 Goals",
+        selection: "Yes",
+        odds: 1.9,
+        confidence: 81,
+        status: "pending",
+        analysis:
+          "Nantes have gone over 2.5 in 7 of their last 9 home league games, and Nancy have shipped goals for fun on the road this season.",
+      },
+    ],
   },
 
   // ── 2026-09-06 ─────────────────────────────────────────────────────────
@@ -331,7 +362,7 @@ export const editions: Edition[] = [
         selection: "Yes",
         odds: 1.85,
         confidence: 90,
-        status: "pending",
+        status: "won",
         analysis:
           "Our model rates this an estimated 78% probability of Over 2.5 Goals — both sides have shipped goals for fun this season, with Yangpyeong's last 6 home games and Siheung's last 5 away trips all going over 2.5.",
       },
