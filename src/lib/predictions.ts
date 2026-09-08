@@ -56,6 +56,14 @@ export interface Edition {
   vip: MatchPick[];
   /** Optional VIP banker / accumulator slip. */
   vipFeature?: Slip;
+  /**
+   * When true, this edition's `free` picks stay visible in the homepage's
+   * Yesterday/Today ticket tabs but are excluded from the public archive
+   * (`getArchiveRows`) and the settled-record stat (`performance`) — for a
+   * day's results that should show on the homepage only, not become part
+   * of the permanent public record. Does not affect `vip`.
+   */
+  excludeFreeFromRecord?: boolean;
 }
 
 // --- Edition access -----------------------------------------------------
@@ -129,7 +137,7 @@ export interface ArchiveRow {
 export function getArchiveRows(list: Edition[] = getEditions()): ArchiveRow[] {
   return list
     .flatMap((edition) =>
-      [...edition.free, ...edition.vip]
+      [...(edition.excludeFreeFromRecord ? [] : edition.free), ...edition.vip]
         .filter((p) => p.status === "won" || p.status === "lost")
         .map((p) => ({
           id: p.id,
@@ -183,12 +191,16 @@ export interface Performance {
  * Deliberately excludes `feature`/`vipFeature` — those legs are duplicate
  * MatchPick objects for matches already published in `free`/`vip` (built
  * for the "Daily 2-Odds Feature" combo), so counting them too would settle
- * the same real-world result twice. `getArchiveRows` uses the same free +
- * vip pool for this reason.
+ * the same real-world result twice. Also respects `excludeFreeFromRecord`,
+ * the same as `getArchiveRows` — both present themselves as "the record",
+ * so they stay consistent with each other.
  */
 export function performance(list: Edition[] = getEditions()): Performance {
   const picks = list
-    .flatMap((edition) => [...edition.free, ...edition.vip])
+    .flatMap((edition) => [
+      ...(edition.excludeFreeFromRecord ? [] : edition.free),
+      ...edition.vip,
+    ])
     .filter((p) => p.status === "won" || p.status === "lost");
   const won = picks.filter((p) => p.status === "won").length;
   const settled = picks.length;

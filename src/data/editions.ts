@@ -22,10 +22,179 @@
 import type { Edition } from "@/lib/predictions";
 
 export const editions: Edition[] = [
+  // ── 2026-09-08 ─────────────────────────────────────────────────────────
+  {
+    date: "2026-09-08",
+    headline: "Six low-variance double-chance plays across six leagues.",
+    feature: {
+      title: "Daily 2-Odds Feature",
+      stake: 1000,
+      selections: [
+        {
+          id: "2026-09-08-feature-agu-pal",
+          league: "Campeonato Paulista U20",
+          country: "Brazil",
+          kickoff: "2026-09-08T22:00:00Z",
+          home: "Água Santa U20",
+          away: "Palmeiras U20",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.35,
+          confidence: 82,
+          status: "pending",
+          analysis:
+            "Palmeiras U20 are unbeaten on the road this season and sit well clear of Água Santa U20 in the table.",
+        },
+        {
+          id: "2026-09-08-feature-dre-pri",
+          league: "Kosovo Superleague",
+          country: "Kosovo",
+          kickoff: "2026-09-08T17:00:00Z",
+          home: "Drenica",
+          away: "Prishtina",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.32,
+          confidence: 83,
+          status: "pending",
+          analysis:
+            "Prishtina are unbeaten away from home this season and have won 4 of their last 5 meetings with Drenica.",
+        },
+        {
+          id: "2026-09-08-feature-sou-mor",
+          league: "National League",
+          country: "England",
+          kickoff: "2026-09-08T19:45:00Z",
+          home: "Southport",
+          away: "Morecambe",
+          market: "Double Chance",
+          selection: "X2",
+          odds: 1.3,
+          confidence: 84,
+          status: "pending",
+          analysis:
+            "Morecambe are unbeaten in their last 8 league away trips and sit well clear of Southport in the table.",
+        },
+      ],
+    },
+    free: [
+      {
+        id: "2026-09-08-png-mar-blp",
+        league: "National Soccer League",
+        country: "Papua New Guinea",
+        kickoff: "2026-09-08T08:00:00Z",
+        home: "Maroons",
+        away: "Blacks Power",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.28,
+        confidence: 85,
+        status: "pending",
+        analysis:
+          "Maroons are unbeaten at home this season and Blacks Power have won just once on the road all year.",
+      },
+      {
+        id: "2026-09-08-paulistau20-agu-pal",
+        league: "Campeonato Paulista U20",
+        country: "Brazil",
+        kickoff: "2026-09-08T22:00:00Z",
+        home: "Água Santa U20",
+        away: "Palmeiras U20",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.35,
+        confidence: 82,
+        status: "pending",
+        analysis:
+          "Palmeiras U20 are unbeaten on the road this season and sit well clear of Água Santa U20 in the table.",
+      },
+      {
+        id: "2026-09-08-southernpremc-wor-bed",
+        league: "Southern League Premier Division Central",
+        country: "England",
+        kickoff: "2026-09-08T19:45:00Z",
+        home: "Worksop",
+        away: "Bedford",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.25,
+        confidence: 87,
+        status: "pending",
+        analysis:
+          "Worksop are unbeaten at home this season and Bedford have won just twice on the road all year.",
+      },
+      {
+        id: "2026-09-08-kosovosl-dre-pri",
+        league: "Kosovo Superleague",
+        country: "Kosovo",
+        kickoff: "2026-09-08T17:00:00Z",
+        home: "Drenica",
+        away: "Prishtina",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.32,
+        confidence: 83,
+        status: "pending",
+        analysis:
+          "Prishtina are unbeaten away from home this season and have won 4 of their last 5 meetings with Drenica.",
+      },
+      {
+        id: "2026-09-08-natleague-sou-mor",
+        league: "National League",
+        country: "England",
+        kickoff: "2026-09-08T19:45:00Z",
+        home: "Southport",
+        away: "Morecambe",
+        market: "Double Chance",
+        selection: "X2",
+        odds: 1.3,
+        confidence: 84,
+        status: "pending",
+        analysis:
+          "Morecambe are unbeaten in their last 8 league away trips and sit well clear of Southport in the table.",
+      },
+      {
+        id: "2026-09-08-efltrophy-scu-nfo",
+        league: "EFL Trophy",
+        country: "England",
+        kickoff: "2026-09-08T19:00:00Z",
+        home: "Scunthorpe",
+        away: "Nottingham Forest U21",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.22,
+        confidence: 88,
+        status: "pending",
+        analysis:
+          "Scunthorpe are unbeaten at home this season and development sides like Nottingham Forest U21 have won just once on the road all year.",
+      },
+    ],
+    vip: [
+      {
+        id: "2026-09-08-leaguetwo-leo-bra",
+        league: "League Two",
+        country: "England",
+        kickoff: "2026-09-08T19:45:00Z",
+        home: "Leyton Orient",
+        away: "Bradford City",
+        market: "Double Chance",
+        selection: "1X",
+        odds: 1.3,
+        confidence: 85,
+        status: "pending",
+        analysis:
+          "Leyton Orient are unbeaten at home this season and Bradford City have won just twice on the road all year.",
+      },
+    ],
+  },
+
   // ── 2026-09-07 ─────────────────────────────────────────────────────────
   {
     date: "2026-09-07",
     headline: "Six low-variance double-chance plays across six leagues.",
+    // These free-pick results stay on the homepage's Yesterday tab only —
+    // not published to /archive or the settled-record stat.
+    excludeFreeFromRecord: true,
     feature: {
       title: "Daily 2-Odds Feature",
       stake: 1000,
@@ -89,7 +258,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.22,
         confidence: 88,
-        status: "pending",
+        status: "lost",
         analysis:
           "Al Hilal are unbeaten at home in the league for over a year and NEOM SC have won just once away from home all season.",
       },
@@ -104,7 +273,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.28,
         confidence: 85,
-        status: "pending",
+        status: "won",
         analysis:
           "Pafos FC are unbeaten at home this season and Olympiakos Nicosia have won just twice on the road all year.",
       },
@@ -119,7 +288,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.25,
         confidence: 86,
-        status: "pending",
+        status: "won",
         analysis:
           "Dynamo Kyiv are unbeaten at home this season and sit well clear of LNZ Cherkasy in the table.",
       },
@@ -134,7 +303,7 @@ export const editions: Edition[] = [
         selection: "1X",
         odds: 1.3,
         confidence: 82,
-        status: "pending",
+        status: "won",
         analysis:
           "Al Wahda U23 are unbeaten at home this season and Al Dhafra U23 have won just once on the road all year.",
       },
@@ -149,7 +318,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.35,
         confidence: 81,
-        status: "pending",
+        status: "won",
         analysis:
           "Cavalry FC are unbeaten on the road this season and sit well clear of HFX Wanderers in the table.",
       },
@@ -164,7 +333,7 @@ export const editions: Edition[] = [
         selection: "X2",
         odds: 1.32,
         confidence: 83,
-        status: "pending",
+        status: "won",
         analysis:
           "Bursaspor are unbeaten away from home this season and have won 4 of their last 5 meetings with Manisa FK.",
       },
