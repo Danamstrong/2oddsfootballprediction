@@ -58,10 +58,11 @@ export interface Edition {
   vipFeature?: Slip;
   /**
    * When true, this edition's `free` picks stay visible in the homepage's
-   * Yesterday/Today ticket tabs but are excluded from the public archive
-   * (`getArchiveRows`) and the settled-record stat (`performance`) — for a
-   * day's results that should show on the homepage only, not become part
-   * of the permanent public record. Does not affect `vip`.
+   * Yesterday/Today ticket tabs but are excluded from the site-wide
+   * settled-record stat (`performance`) — for a day's results that should
+   * show on the homepage only, not count toward the public record. Has no
+   * effect on `getArchiveRows`, which never includes `free` picks at all
+   * (the archive is VIP-only). Does not affect `vip`.
    */
   excludeFreeFromRecord?: boolean;
 }
@@ -133,11 +134,17 @@ export interface ArchiveRow {
   result: "won" | "lost";
 }
 
-/** Every settled single pick, newest first, stripped to archive-safe fields. */
+/**
+ * Every settled VIP pick, newest first, stripped to archive-safe fields.
+ *
+ * VIP-only, deliberately: the archive is a historical VIP ticket record,
+ * not a general settled-picks log. Free picks never appear here, no matter
+ * their status — see `performance()` for the site-wide (free + VIP) stat.
+ */
 export function getArchiveRows(list: Edition[] = getEditions()): ArchiveRow[] {
   return list
     .flatMap((edition) =>
-      [...(edition.excludeFreeFromRecord ? [] : edition.free), ...edition.vip]
+      edition.vip
         .filter((p) => p.status === "won" || p.status === "lost")
         .map((p) => ({
           id: p.id,
@@ -186,14 +193,16 @@ export interface Performance {
 }
 
 /**
- * Win record across a set of editions (settled single picks only).
+ * Site-wide win record across a set of editions — free AND VIP picks
+ * (settled ones only). This is the broader "how has the model done overall"
+ * stat shown on the homepage; contrast with `getArchiveRows`, which is a
+ * VIP-only historical ticket record.
  *
  * Deliberately excludes `feature`/`vipFeature` — those legs are duplicate
  * MatchPick objects for matches already published in `free`/`vip` (built
  * for the "Daily 2-Odds Feature" combo), so counting them too would settle
  * the same real-world result twice. Also respects `excludeFreeFromRecord`,
- * the same as `getArchiveRows` — both present themselves as "the record",
- * so they stay consistent with each other.
+ * for a day whose free-pick results shouldn't count toward this stat.
  */
 export function performance(list: Edition[] = getEditions()): Performance {
   const picks = list

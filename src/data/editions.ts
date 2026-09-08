@@ -363,9 +363,9 @@ export const editions: Edition[] = [
         away: "AS Nancy",
         market: "Over 2.5 Goals",
         selection: "Yes",
-        odds: 1.9,
+        odds: 1.85,
         confidence: 81,
-        status: "pending",
+        status: "lost",
         analysis:
           "Nantes have gone over 2.5 in 7 of their last 9 home league games, and Nancy have shipped goals for fun on the road this season.",
       },
@@ -529,7 +529,7 @@ export const editions: Edition[] = [
         away: "Siheung Citizen",
         market: "Over 2.5 Goals",
         selection: "Yes",
-        odds: 1.85,
+        odds: 1.84,
         confidence: 90,
         status: "won",
         analysis:
