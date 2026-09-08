@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, BarChart3, Bell, Crown, ArrowRight } from "lucide-react";
 import { DailyTicket } from "@/components/DailyTicket";
@@ -66,6 +67,18 @@ export default async function Home() {
               <dd>Posted by 10:00 daily</dd>
             </div>
           </dl>
+
+          <div className="relative mt-4 aspect-[16/9] w-full max-w-4xl overflow-hidden rounded-3xl border border-emerald-500/30 shadow-lg">
+            <Image
+              src="/images/hero/dashboard.webp"
+              alt="Live football analytics dashboard with real-time odds, match momentum, and stats panels"
+              fill
+              priority
+              sizes="(min-width: 1024px) 896px, 100vw"
+              className="object-cover"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+          </div>
         </section>
 
         {/* Daily 2-Odds slip — 6 interleaved rows, ad-locked for non-VIP */}

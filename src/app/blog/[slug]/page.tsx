@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
@@ -8,6 +9,7 @@ import {
   getPostSlugs,
   getAllPosts,
   formatPostDate,
+  CATEGORY_IMAGE,
   type BlogBlock,
 } from "@/lib/blog";
 import { SITE_NAME, SITE_URL } from "@/data/site";
@@ -139,6 +141,17 @@ export default async function BlogPostPage({
           <ArrowLeft className="size-4" aria-hidden />
           All posts
         </Link>
+
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-800">
+          <Image
+            src={CATEGORY_IMAGE[post.category].src}
+            alt={CATEGORY_IMAGE[post.category].alt}
+            fill
+            priority
+            sizes="(min-width: 768px) 672px, 100vw"
+            className="object-cover"
+          />
+        </div>
 
         <header className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">

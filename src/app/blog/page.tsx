@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { BookOpen, Clock, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/JsonLd";
-import { getAllPosts, formatPostDate } from "@/lib/blog";
+import { getAllPosts, formatPostDate, CATEGORY_IMAGE } from "@/lib/blog";
 import { SITE_NAME, SITE_URL } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -69,39 +70,50 @@ export default function BlogIndexPage() {
             <li key={post.slug}>
               <Link
                 href={`/blog/${post.slug}`}
-                className="group flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
+                className="group flex flex-col gap-3 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950"
               >
-                <div className="flex flex-wrap items-center gap-3 text-xs">
-                  <span
-                    className={cn(
-                      "inline-flex rounded-full px-2.5 py-1 font-semibold uppercase tracking-wide",
-                      categoryStyle[post.category] ??
-                        "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
-                    )}
-                  >
-                    {post.category}
-                  </span>
-                  <span className="text-zinc-500 dark:text-zinc-400">
-                    {formatPostDate(post.publishedAt)}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
-                    <Clock className="size-3.5" aria-hidden />
-                    {post.readingMinutes} min read
+                <div className="relative aspect-[16/9] w-full overflow-hidden">
+                  <Image
+                    src={CATEGORY_IMAGE[post.category].src}
+                    alt={CATEGORY_IMAGE[post.category].alt}
+                    fill
+                    sizes="(min-width: 768px) 768px, 100vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+                <div className="flex flex-col gap-3 p-6 pt-3">
+                  <div className="flex flex-wrap items-center gap-3 text-xs">
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full px-2.5 py-1 font-semibold uppercase tracking-wide",
+                        categoryStyle[post.category] ??
+                          "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300",
+                      )}
+                    >
+                      {post.category}
+                    </span>
+                    <span className="text-zinc-500 dark:text-zinc-400">
+                      {formatPostDate(post.publishedAt)}
+                    </span>
+                    <span className="inline-flex items-center gap-1 text-zinc-500 dark:text-zinc-400">
+                      <Clock className="size-3.5" aria-hidden />
+                      {post.readingMinutes} min read
+                    </span>
+                  </div>
+                  <h2 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-600 dark:text-zinc-50 dark:group-hover:text-emerald-400">
+                    {post.title}
+                  </h2>
+                  <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    {post.description}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                    Read guide
+                    <ArrowRight
+                      className="size-4 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden
+                    />
                   </span>
                 </div>
-                <h2 className="text-lg font-bold text-zinc-900 group-hover:text-emerald-600 dark:text-zinc-50 dark:group-hover:text-emerald-400">
-                  {post.title}
-                </h2>
-                <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  {post.description}
-                </p>
-                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                  Read guide
-                  <ArrowRight
-                    className="size-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </span>
               </Link>
             </li>
           ))}

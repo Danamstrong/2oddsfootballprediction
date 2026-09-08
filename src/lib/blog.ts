@@ -5,6 +5,18 @@
 
 export type BlogCategory = "Strategy Guide" | "Match Preview";
 
+/** One cover image per category — reused across every post in that category. */
+export const CATEGORY_IMAGE: Record<BlogCategory, { src: string; alt: string }> = {
+  "Strategy Guide": {
+    src: "/images/blog/strategy-guide.webp",
+    alt: "3D rendered football stadium with statistical charts hovering above the pitch",
+  },
+  "Match Preview": {
+    src: "/images/blog/match-preview.webp",
+    alt: "Close-up of a tactical football whiteboard with player movement arrows",
+  },
+};
+
 export interface BlogBlock {
   type: "p" | "h2" | "ul";
   /** For `p` / `h2`. */
