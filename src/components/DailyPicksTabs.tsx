@@ -8,11 +8,11 @@ import type { MatchPick } from "@/lib/predictions";
 export interface DailyPicksTabsProps {
   /** Today's rows — shown by default. */
   todayRows: MatchPick[];
-  /** Short label for the "Today" tab, e.g. "6 Sep". */
+  /** Short label for the "Today" tab, e.g. "12 Sep". */
   todayLabel: string;
   /** Yesterday's settled rows, if that edition exists. */
   yesterdayRows: MatchPick[];
-  /** Short label for the "Yesterday" tab, e.g. "5 Sep". */
+  /** Short label for the "Yesterday" tab, e.g. "11 Sep". */
   yesterdayLabel: string;
   /** From the signed VIP cookie — unlocks every row and hides all ad prompts. */
   isVipActive: boolean;
