@@ -1,12 +1,15 @@
 /**
  * Prediction data model + helpers.
  *
- * The actual daily content lives in `src/data/editions.ts` — edit that file to
- * publish a new day. Nothing in `src/app` or `src/components` needs touching:
- * pages read the latest edition through the helpers below.
+ * Fetches dynamic predictions from Supabase with fallbacks to `src/data/editions.ts`.
  */
 
-import { editions } from "@/data/editions";
+import { editions as staticEditions } from "@/data/editions";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // --- Model ---------------------------------------------------------------
 
@@ -56,41 +59,113 @@ export interface Edition {
   vip: MatchPick[];
   /** Optional VIP banker / accumulator slip. */
   vipFeature?: Slip;
-  /**
-   * When true, this edition's `free` picks stay visible in the homepage's
-   * Yesterday/Today ticket tabs but are excluded from the site-wide
-   * settled-record stat (`performance`) — for a day's results that should
-   * show on the homepage only, not count toward the public record. Has no
-   * effect on `getArchiveRows`, which never includes `free` picks at all
-   * (the archive is VIP-only). Does not affect `vip`.
-   */
   excludeFreeFromRecord?: boolean;
 }
 
-// --- Edition access -----------------------------------------------------
+// --- Dynamic Database Fetching ------------------------------------------
 
-/** All editions, newest first. */
+/** Fetches rows from Supabase `predictions` table and merges with static editions. */
+export async function fetchLiveEditions(): Promise<Edition[]> {
+  try {
+    const { data: rows, error } = await supabase
+      .from('predictions')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error || !rows || rows.length === 0) {
+      return getEditions(); // Fallback to static editions
+    }
+
+    // Group Supabase prediction rows into Edition objects by date
+    const editionsMap: Record<string, Edition> = {};
+
+    for (const row of rows) {
+      const date = row.date;
+      if (!editionsMap[date]) {
+        editionsMap[date] = {
+          date: date,
+          headline: `Predictions for ${date}`,
+          feature: {
+            title: "Daily 2-Odds Feature",
+            stake: 5000,
+            selections: [],
+          },
+          free: [],
+          vip: [],
+        };
+      }
+
+      // Convert DB status ('WON', 'LOSS', 'Pending') to lowercase types expected by frontend
+      let formattedStatus: PickStatus = "pending";
+      if (row.status?.toLowerCase() === "won") formattedStatus = "won";
+      if (row.status?.toLowerCase() === "loss" || row.status?.toLowerCase() === "lost") formattedStatus = "lost";
+
+      const [homeTeam, awayTeam] = (row.match_name || "Home vs Away").split(" vs ");
+
+      const pickObj: MatchPick = {
+        id: row.id?.toString() || `${date}-${row.category}-${Math.random()}`,
+        league: row.league || "Premier League",
+        kickoff: `${date}T15:00:00Z`,
+        home: homeTeam || "Home",
+        away: awayTeam || "Away",
+        market: "Match Pick",
+        selection: row.pick || "1X",
+        odds: Number(row.odds) || 1.85,
+        confidence: 85,
+        status: formattedStatus,
+        analysis: "Data-driven statistical selection.",
+      };
+
+      if (row.category === "free") {
+        editionsMap[date].free.push(pickObj);
+        editionsMap[date].feature.selections.push(pickObj);
+      } else if (row.category === "vip") {
+        editionsMap[date].vip.push(pickObj);
+      }
+    }
+
+    const liveEditions = Object.values(editionsMap);
+    
+    // Merge live DB editions with existing static fallback data
+    const allDates = new Set([...liveEditions.map(e => e.date), ...staticEditions.map(e => e.date)]);
+    const merged: Edition[] = [];
+
+    for (const d of Array.from(allDates)) {
+      const live = liveEditions.find(e => e.date === d);
+      const staticEd = staticEditions.find(e => e.date === d);
+      if (live) {
+        merged.push(live);
+      } else if (staticEd) {
+        merged.push(staticEd);
+      }
+    }
+
+    return merged.sort((a, b) => b.date.localeCompare(a.date));
+  } catch (err) {
+    console.error("Error fetching live editions:", err);
+    return getEditions();
+  }
+}
+
+// --- Static Fallbacks & Helpers ------------------------------------------
+
+/** All static editions, newest first. */
 export function getEditions(): Edition[] {
-  return [...editions].sort((a, b) => b.date.localeCompare(a.date));
+  return [...staticEditions].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function getEdition(date: string): Edition | undefined {
-  return editions.find((e) => e.date === date);
+  return staticEditions.find((e) => e.date === date);
 }
 
-/** Most recently dated edition. */
 export function getLatestEdition(): Edition {
   const all = getEditions();
   if (all.length === 0) {
-    throw new Error("No editions published. Add one to src/data/editions.ts.");
+    throw new Error("No editions published.");
   }
   return all[0];
 }
 
-/**
- * The edition to show right now: the newest one whose date is not in the
- * future, falling back to the newest overall.
- */
 export function getCurrentEdition(now: Date = new Date()): Edition {
   const today = now.toISOString().slice(0, 10);
   const all = getEditions();
@@ -105,7 +180,6 @@ export function getVipPicks(edition: Edition): MatchPick[] {
   return edition.vip;
 }
 
-/** Every pick in an edition, across feature slip + free + vip + vipFeature. */
 export function allPicks(edition: Edition): MatchPick[] {
   return [
     ...edition.feature.selections,
@@ -115,16 +189,10 @@ export function allPicks(edition: Edition): MatchPick[] {
   ];
 }
 
-// --- Historical archive (sanitised) ----------------------------------
+// --- Historical Archive ----------------------------------
 
-/**
- * One settled result for the public archive. Deliberately omits `market`,
- * `selection`, `analysis` and `confidence` so the pattern behind our picks
- * can't be reverse-engineered from history.
- */
 export interface ArchiveRow {
   id: string;
-  /** ISO date, YYYY-MM-DD. */
   date: string;
   home: string;
   away: string;
@@ -134,13 +202,6 @@ export interface ArchiveRow {
   result: "won" | "lost";
 }
 
-/**
- * Every settled VIP pick, newest first, stripped to archive-safe fields.
- *
- * VIP-only, deliberately: the archive is a historical VIP ticket record,
- * not a general settled-picks log. Free picks never appear here, no matter
- * their status — see `performance()` for the site-wide (free + VIP) stat.
- */
 export function getArchiveRows(list: Edition[] = getEditions()): ArchiveRow[] {
   return list
     .flatMap((edition) =>
@@ -160,7 +221,7 @@ export function getArchiveRows(list: Edition[] = getEditions()): ArchiveRow[] {
     .sort((a, b) => b.date.localeCompare(a.date) || a.home.localeCompare(b.home));
 }
 
-// --- Odds & settlement -------------------------------------------------
+// --- Odds & Settlement -------------------------------------------------
 
 export function combinedOdds(selections: Pick<MatchPick, "odds">[]): number {
   return selections.reduce((acc, s) => acc * s.odds, 1);
@@ -173,8 +234,6 @@ export function potentialReturn(
   return stake * combinedOdds(selections);
 }
 
-/** Aggregate status of a slip: lost if any leg lost, else pending if any leg
- *  pending, else won. Void and postponed legs are ignored. */
 export function slipStatus(selections: Pick<MatchPick, "status">[]): PickStatus {
   const live = selections.filter(
     (s) => s.status !== "void" && s.status !== "postponed",
@@ -192,18 +251,6 @@ export interface Performance {
   strikeRatePct: number;
 }
 
-/**
- * Site-wide win record across a set of editions — free AND VIP picks
- * (settled ones only). This is the broader "how has the model done overall"
- * stat shown on the homepage; contrast with `getArchiveRows`, which is a
- * VIP-only historical ticket record.
- *
- * Deliberately excludes `feature`/`vipFeature` — those legs are duplicate
- * MatchPick objects for matches already published in `free`/`vip` (built
- * for the "Daily 2-Odds Feature" combo), so counting them too would settle
- * the same real-world result twice. Also respects `excludeFreeFromRecord`,
- * for a day whose free-pick results shouldn't count toward this stat.
- */
 export function performance(list: Edition[] = getEditions()): Performance {
   const picks = list
     .flatMap((edition) => [
@@ -247,16 +294,11 @@ const SHORT_MONTHS = [
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-/**
- * Short form for tab labels, e.g. "5 Sep". Built manually rather than via
- * Intl — en-GB's short month for September is the 4-letter "Sept".
- */
 export function formatShortDate(date: string): string {
   const d = new Date(`${date}T00:00:00Z`);
   return `${d.getUTCDate()} ${SHORT_MONTHS[d.getUTCMonth()]}`;
 }
 
-/** The ISO date one day before the given ISO date. */
 export function previousIsoDate(date: string): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() - 1);
@@ -271,12 +313,11 @@ export function formatNGN(amount: number): string {
   }).format(amount);
 }
 
-// --- VIP membership (pricing config, not daily data) ------------------
+// --- VIP Membership Tiers ----------------------------------
 
 export interface VipTier {
   id: string;
   name: string;
-  /** Amount charged, in Nigerian Naira (Flutterwave `amount`). */
   amountNGN: number;
   cadence: string;
   blurb: string;
