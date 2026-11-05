@@ -7,9 +7,11 @@
 import { editions as staticEditions } from "@/data/editions";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
 
 // --- Model ---------------------------------------------------------------
 
@@ -19,64 +21,50 @@ export type PickStatus = "pending" | "won" | "lost" | "void" | "postponed";
 export type Audience = "free" | "vip";
 
 export interface MatchPick {
-  /** Stable unique id, e.g. "2026-09-02-epl-avl-tot". */
   id: string;
   league: string;
   country?: string;
-  /** ISO 8601 kickoff timestamp in UTC. */
   kickoff: string;
   home: string;
   away: string;
-  /** Betting market, e.g. "Over 1.5 Goals". */
   market: string;
-  /** Selection within the market, e.g. "Yes" or "1X". */
   selection: string;
   odds: number;
-  /** Model confidence, 0-100. */
   confidence: number;
   status: PickStatus;
   analysis: string;
 }
 
-/** A curated multi-selection slip (accumulator). */
 export interface Slip {
   title: string;
-  /** Recommended stake in NGN. */
   stake: number;
   selections: MatchPick[];
 }
 
-/** One day's published predictions. */
 export interface Edition {
-  /** ISO date, YYYY-MM-DD. */
   date: string;
   headline?: string;
-  /** The free "Daily 2-Odds Feature" slip. */
   feature: Slip;
-  /** Additional free single picks. */
   free: MatchPick[];
-  /** VIP-only single picks. */
   vip: MatchPick[];
-  /** Optional VIP banker / accumulator slip. */
   vipFeature?: Slip;
   excludeFreeFromRecord?: boolean;
 }
 
 // --- Dynamic Database Fetching ------------------------------------------
 
-/** Fetches rows from Supabase `predictions` table and merges with static editions. */
 export async function fetchLiveEditions(): Promise<Edition[]> {
   try {
+    const supabase = getSupabase();
     const { data: rows, error } = await supabase
       .from('predictions')
       .select('*')
       .order('date', { ascending: false });
 
     if (error || !rows || rows.length === 0) {
-      return getEditions(); // Fallback to static editions
+      return getEditions();
     }
 
-    // Group Supabase prediction rows into Edition objects by date
     const editionsMap: Record<string, Edition> = {};
 
     for (const row of rows) {
@@ -95,7 +83,6 @@ export async function fetchLiveEditions(): Promise<Edition[]> {
         };
       }
 
-      // Convert DB status ('WON', 'LOSS', 'Pending') to lowercase types expected by frontend
       let formattedStatus: PickStatus = "pending";
       if (row.status?.toLowerCase() === "won") formattedStatus = "won";
       if (row.status?.toLowerCase() === "loss" || row.status?.toLowerCase() === "lost") formattedStatus = "lost";
@@ -125,8 +112,6 @@ export async function fetchLiveEditions(): Promise<Edition[]> {
     }
 
     const liveEditions = Object.values(editionsMap);
-    
-    // Merge live DB editions with existing static fallback data
     const allDates = new Set([...liveEditions.map(e => e.date), ...staticEditions.map(e => e.date)]);
     const merged: Edition[] = [];
 
@@ -149,7 +134,6 @@ export async function fetchLiveEditions(): Promise<Edition[]> {
 
 // --- Static Fallbacks & Helpers ------------------------------------------
 
-/** All static editions, newest first. */
 export function getEditions(): Edition[] {
   return [...staticEditions].sort((a, b) => b.date.localeCompare(a.date));
 }
