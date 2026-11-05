@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Archive, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatEditionDate } from "@/lib/predictions";
 import {
-  getArchiveRows,
-  formatEditionDate,
-  type ArchiveRow,
-} from "@/lib/predictions";
+  getSettledVipPredictions,
+  type DbPredictionStatus,
+} from "@/lib/supabase/predictions";
 
 export const metadata: Metadata = {
   title: "Pick Archive",
@@ -14,8 +14,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/archive" },
 };
 
-function ResultBadge({ result }: { result: ArchiveRow["result"] }) {
-  const won = result === "won";
+// Live data straight from Supabase on every request — never baked in at
+// build time.
+export const dynamic = "force-dynamic";
+
+function ResultBadge({ result }: { result: DbPredictionStatus }) {
+  const won = result === "WON";
   return (
     <span
       className={cn(
@@ -30,9 +34,9 @@ function ResultBadge({ result }: { result: ArchiveRow["result"] }) {
   );
 }
 
-export default function ArchivePage() {
-  const rows = getArchiveRows();
-  const won = rows.filter((r) => r.result === "won").length;
+export default async function ArchivePage() {
+  const rows = await getSettledVipPredictions();
+  const won = rows.filter((r) => r.status === "WON").length;
   const total = rows.length;
   const strikeRate = total === 0 ? 0 : Math.round((won / total) * 100);
 
@@ -77,7 +81,7 @@ export default function ArchivePage() {
                     Date
                   </th>
                   <th scope="col" className="px-4 py-3 font-semibold">
-                    Match &amp; League
+                    Match
                   </th>
                   <th scope="col" className="px-4 py-3 text-right font-semibold">
                     Odds
@@ -98,18 +102,14 @@ export default function ArchivePage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                        {r.home} vs {r.away}
-                      </span>
-                      <span className="block text-xs text-zinc-500 dark:text-zinc-400">
-                        {r.league}
-                        {r.country ? ` · ${r.country}` : ""}
+                        {r.match_name}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">
                       {r.odds.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <ResultBadge result={r.result} />
+                      <ResultBadge result={r.status} />
                     </td>
                   </tr>
                 ))}

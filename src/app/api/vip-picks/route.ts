@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getViewerVipStatus } from "@/lib/vip-status";
-import { getCurrentEdition } from "@/lib/predictions";
+import { getPendingVipPredictions } from "@/lib/supabase/predictions";
 
 /**
  * The only place VIP pick data leaves the server for a real client fetch.
@@ -20,9 +20,6 @@ export async function GET() {
     );
   }
 
-  const edition = getCurrentEdition();
-  return NextResponse.json({
-    date: edition.date,
-    picks: edition.vip,
-  });
+  const picks = await getPendingVipPredictions();
+  return NextResponse.json({ picks });
 }

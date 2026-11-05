@@ -1,37 +1,45 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShieldCheck, BarChart3, Bell, Crown, ArrowRight } from "lucide-react";
-import { DailyTicket } from "@/components/DailyTicket";
+import { PicksTable } from "@/components/PicksTable";
 import { LockedVipPreview } from "@/components/LockedVipPreview";
 import { MultiCurrencyPayButton } from "@/components/MultiCurrencyPayButton";
 import { Testimonials } from "@/components/Testimonials";
 import { LiveStatusBanner } from "@/components/LiveStatusBanner";
 import {
-  combinedOdds,
-  formatShortDate,
-  getCurrentEdition,
-  getEdition,
-  getEditions,
-  performance,
-  previousIsoDate,
-} from "@/lib/predictions";
+  getFreePredictions,
+  getPendingVipPredictions,
+  getSettledVipPredictions,
+} from "@/lib/supabase/predictions";
 import { getViewerVipStatus } from "@/lib/vip-status";
 
+// Live data straight from Supabase on every request — never baked in at
+// build time.
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
-  const edition = getCurrentEdition();
-  const record = performance(getEditions());
   // Session + fresh DB subscription check — never a client-set cookie.
   const { isVip } = await getViewerVipStatus();
 
-  // The 6 interleaved rows for the slip table: free picks first, then VIP.
-  const rows = [...edition.free, ...edition.vip].slice(0, 6);
-  const vipAccaOdds = combinedOdds(edition.vip);
+  const [freePicks, pendingVip, settledVip] = await Promise.all([
+    getFreePredictions(),
+    getPendingVipPredictions(),
+    getSettledVipPredictions(),
+  ]);
 
-  // The prior day's edition, if published, powers the "Yesterday" results tab.
-  const yesterdayEdition = getEdition(previousIsoDate(edition.date));
-  const yesterdayRows = yesterdayEdition
-    ? [...yesterdayEdition.free, ...yesterdayEdition.vip].slice(0, 6)
-    : [];
+  // Most recent 6 free picks for the homepage ticket.
+  const rows = freePicks.slice(0, 6);
+  const vipAccaOdds = pendingVip.reduce((acc, p) => acc * p.odds, 1);
+
+  // Site-wide settled record — free (won/lost) + VIP (won/lost), combined.
+  const settledFree = freePicks.filter(
+    (p) => p.status === "WON" || p.status === "LOSS",
+  );
+  const settled = settledFree.length + settledVip.length;
+  const won =
+    settledFree.filter((p) => p.status === "WON").length +
+    settledVip.filter((p) => p.status === "WON").length;
+  const strikeRatePct = settled === 0 ? 0 : Math.round((won / settled) * 100);
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -57,8 +65,7 @@ export default async function Home() {
               <ShieldCheck className="size-4 text-emerald-500" aria-hidden />
               <dt className="sr-only">Record</dt>
               <dd>
-                {record.won}/{record.settled} settled &middot;{" "}
-                {record.strikeRatePct}% strike rate
+                {won}/{settled} settled &middot; {strikeRatePct}% strike rate
               </dd>
             </div>
             <div className="flex items-center gap-1.5">
@@ -81,19 +88,25 @@ export default async function Home() {
           </div>
         </section>
 
-        {/* Daily 2-Odds slip — 6 interleaved rows, ad-locked for non-VIP */}
-        <DailyTicket
-          slip={edition.feature}
-          rows={rows}
-          todayLabel={formatShortDate(edition.date)}
-          yesterdayRows={yesterdayRows}
-          yesterdayLabel={yesterdayEdition ? formatShortDate(yesterdayEdition.date) : ""}
-          isVipActive={isVip}
-          editionDate={edition.date}
-        />
+        {/* Latest free picks — up to 6 rows, ad-locked for non-VIP */}
+        <section
+          aria-labelledby="daily-ticket-heading"
+          className="overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-950 via-zinc-950 to-zinc-950 text-zinc-100 shadow-lg"
+        >
+          <h2
+            id="daily-ticket-heading"
+            className="border-b border-white/10 px-4 py-3 text-sm font-semibold sm:px-6"
+          >
+            Latest Free Picks
+          </h2>
+          <PicksTable rows={rows} isVipActive={isVip} showResult />
+          <p className="border-t border-white/10 px-6 py-3 text-center text-[11px] text-zinc-500">
+            Odds move constantly &mdash; confirm prices with your bookmaker before staking.
+          </p>
+        </section>
 
         {/* VIP picks — unlocked for members, locked teaser otherwise */}
-        {edition.vip.length > 0 && (
+        {pendingVip.length > 0 && (
           <section aria-labelledby="vip-picks-heading" className="flex flex-col gap-6">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <h2
@@ -103,14 +116,14 @@ export default async function Home() {
                 VIP picks
               </h2>
               <div className="flex flex-wrap items-center gap-2">
-                {edition.vip.length === 1 && (
+                {pendingVip.length === 1 && (
                   <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-                    Single value pick &middot; {edition.vip[0].odds.toFixed(2)} target odds
+                    Single value pick &middot; {pendingVip[0].odds.toFixed(2)} target odds
                   </p>
                 )}
-                {edition.vip.length > 1 && (
+                {pendingVip.length > 1 && (
                   <p className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-950 dark:text-amber-400">
-                    {edition.vip.length}-leg acca &middot; {vipAccaOdds.toFixed(2)} combined odds
+                    {pendingVip.length}-leg acca &middot; {vipAccaOdds.toFixed(2)} combined odds
                   </p>
                 )}
                 {isVip && (
@@ -145,7 +158,7 @@ export default async function Home() {
                 </Link>
               </div>
             ) : (
-              <LockedVipPreview count={edition.vip.length} />
+              <LockedVipPreview count={pendingVip.length} />
             )}
           </section>
         )}

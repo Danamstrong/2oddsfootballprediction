@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { Crown, LogOut, ShieldCheck } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { getVipStatusByEmail } from "@/lib/vip-status";
-import { getCurrentEdition, formatEditionDate } from "@/lib/predictions";
+import { formatEditionDate } from "@/lib/predictions";
+import { getPendingVipPredictions } from "@/lib/supabase/predictions";
 import { PredictionCard } from "@/components/PredictionCard";
 
 // Never let this leak into search results — it's paid content.
@@ -12,6 +13,10 @@ export const metadata: Metadata = {
   title: "VIP Picks",
   robots: { index: false, follow: false },
 };
+
+// Live data straight from Supabase on every request — never baked in at
+// build time.
+export const dynamic = "force-dynamic";
 
 export default async function VipPage() {
   const session = await auth();
@@ -51,7 +56,7 @@ export default async function VipPage() {
     );
   }
 
-  const edition = getCurrentEdition();
+  const picks = await getPendingVipPredictions();
 
   return (
     <main className="flex flex-1 flex-col bg-zinc-50 font-sans dark:bg-black">
@@ -63,10 +68,10 @@ export default async function VipPage() {
               VIP active{expiresAt ? ` · expires ${formatEditionDate(expiresAt.slice(0, 10))}` : ""}
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl dark:text-zinc-50">
-              Today&rsquo;s VIP picks
+              Active VIP picks
             </h1>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              {formatEditionDate(edition.date)} &middot; signed in as {email}
+              Signed in as {email}
             </p>
           </div>
 
@@ -86,13 +91,13 @@ export default async function VipPage() {
           </form>
         </header>
 
-        {edition.vip.length === 0 ? (
+        {picks.length === 0 ? (
           <p className="rounded-2xl border border-dashed border-zinc-300 p-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-            No VIP picks published yet for today &mdash; check back soon.
+            No VIP picks published yet &mdash; check back soon.
           </p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {edition.vip.map((pick) => (
+            {picks.map((pick) => (
               <PredictionCard key={pick.id} pick={pick} />
             ))}
           </div>

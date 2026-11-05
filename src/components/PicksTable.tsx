@@ -3,7 +3,8 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Crown, Lock, Play } from "lucide-react";
-import { formatKickoff, type MatchPick } from "@/lib/predictions";
+import { formatEditionDate } from "@/lib/predictions";
+import type { DbPrediction } from "@/lib/supabase/predictions";
 
 /** Monetag Direct Link — opened in a new tab when a visitor unlocks a row. */
 const MONETAG_DIRECT_LINK = "https://omg10.com/4/11717025";
@@ -13,19 +14,25 @@ function isLockedRow(index: number): boolean {
   return index % 2 === 1;
 }
 
+/** "Home vs Away" -> ["Home", "Away"], or null if it doesn't split cleanly. */
+function splitMatchName(matchName: string): [string, string] | null {
+  const parts = matchName.split(/\s+vs\.?\s+/i);
+  return parts.length === 2 ? [parts[0], parts[1]] : null;
+}
+
 export interface PicksTableProps {
-  /** The interleaved rows to display (up to 6). */
-  rows: MatchPick[];
+  /** The rows to display, newest first (up to 6). */
+  rows: DbPrediction[];
   /** From the signed VIP cookie — unlocks every row and hides all ad prompts. */
   isVipActive: boolean;
-  /** Show a WON/LOSS pill per row (settled results view) instead of nothing. */
+  /** Show a WON/LOSS pill per settled row. */
   showResult?: boolean;
 }
 
 /**
- * The 6-row table inside the Daily 2-Odds slip container. Odd rows are always
- * visible; even rows are blurred behind a "Watch Ad to Unlock" prompt until the
- * visitor either opens the Monetag Direct Link for that row or holds active VIP.
+ * The 6-row free-picks list. Odd rows are always visible; even rows are
+ * blurred behind a "Watch Ad to Unlock" prompt until the visitor either opens
+ * the Monetag Direct Link for that row or holds active VIP.
  */
 export function PicksTable({ rows, isVipActive, showResult = false }: PicksTableProps) {
   // Row indices the visitor has unlocked by engaging with the ad.
@@ -54,6 +61,7 @@ export function PicksTable({ rows, isVipActive, showResult = false }: PicksTable
       <ol className="divide-y divide-white/10">
         {rows.map((pick, index) => {
           const unlocked = rowUnlocked(index);
+          const teams = splitMatchName(pick.match_name);
           return (
             <li
               key={pick.id}
@@ -67,38 +75,34 @@ export function PicksTable({ rows, isVipActive, showResult = false }: PicksTable
                 aria-hidden={!unlocked}
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">
-                    {pick.home} <span className="text-zinc-500">v</span> {pick.away}
-                  </p>
+                  {teams ? (
+                    <p className="truncate text-sm font-semibold">
+                      {teams[0]} <span className="text-zinc-500">v</span> {teams[1]}
+                    </p>
+                  ) : (
+                    <p className="truncate text-sm font-semibold">{pick.match_name}</p>
+                  )}
                   <p className="max-w-[180px] truncate text-xs text-zinc-400 sm:max-w-none">
-                    {pick.league} &middot; {formatKickoff(pick.kickoff)}
+                    {formatEditionDate(pick.date)}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <span className="shrink-0 rounded bg-emerald-500/20 px-2 py-1 text-xs font-bold text-emerald-400">
-                    {pick.selection}
+                    {pick.pick}
                   </span>
                   <span className="shrink-0 text-sm font-bold tabular-nums">
                     {pick.odds.toFixed(2)}
                   </span>
                   {showResult &&
-                    (pick.status === "won" ||
-                      pick.status === "lost" ||
-                      pick.status === "postponed") && (
+                    (pick.status === "WON" || pick.status === "LOSS") && (
                       <span
                         className={`shrink-0 rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide ${
-                          pick.status === "won"
+                          pick.status === "WON"
                             ? "bg-emerald-500/20 text-emerald-400"
-                            : pick.status === "lost"
-                              ? "bg-rose-500/20 text-rose-400"
-                              : "bg-amber-500/20 text-amber-400"
+                            : "bg-rose-500/20 text-rose-400"
                         }`}
                       >
-                        {pick.status === "won"
-                          ? "Won"
-                          : pick.status === "lost"
-                            ? "Loss"
-                            : "Postponed"}
+                        {pick.status === "WON" ? "Won" : "Loss"}
                       </span>
                     )}
                 </div>
