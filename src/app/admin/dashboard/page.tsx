@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Lazy-loaded client to prevent build-time missing env errors
+function getSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'predictions' | 'blog'>('predictions');
@@ -29,6 +32,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMessage('Saving pick to database...');
 
+    const supabase = getSupabase();
     const { error } = await supabase.from('predictions').insert([
       {
         match_name: matchName,
@@ -55,6 +59,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     setMessage('Publishing blog post...');
 
+    const supabase = getSupabase();
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
     const { error } = await supabase.from('blog_posts').insert([
