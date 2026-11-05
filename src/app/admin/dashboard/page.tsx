@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 export default function AdminDashboard() {
-  const supabase = createClientComponentClient();
   const router = useRouter();
   
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<'predictions' | 'blog'>('predictions');
 
-  // Single Pick Form State
   const [matchName, setMatchName] = useState('');
   const [pick, setPick] = useState('');
   const [odds, setOdds] = useState('');
@@ -20,27 +22,25 @@ export default function AdminDashboard() {
   const [pickDate, setPickDate] = useState(new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState<'Pending' | 'WON' | 'LOSS'>('Pending');
 
-  // Blog Form State
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
   const [message, setMessage] = useState('');
 
-  // 1. Security Check: Only allow danielokereke2018@gmail.com
   useEffect(() => {
     async function checkUser() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user || user.email !== 'danielokereke2018@gmail.com') {
-        router.push('/'); // Kick unauthorized users to home page
+        router.push('/');
       } else {
         setAuthorized(true);
       }
       setLoading(false);
     }
     checkUser();
-  }, [supabase, router]);
+  }, [router]);
 
   if (loading) {
     return (
@@ -54,7 +54,6 @@ export default function AdminDashboard() {
     return null;
   }
 
-  // Submit Prediction (Free/VIP)
   const handlePickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('Saving pick...');
@@ -80,7 +79,6 @@ export default function AdminDashboard() {
     }
   };
 
-  // Submit Blog Post
   const handleBlogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('Publishing post...');
@@ -111,10 +109,10 @@ export default function AdminDashboard() {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-emerald-400 mb-6">2Odds Admin Management</h1>
 
-        {/* Navigation Tabs */}
         <div className="flex gap-4 mb-8 border-b border-slate-800 pb-3">
           <button
             onClick={() => setActiveTab('predictions')}
+            type="button"
             className={`px-4 py-2 rounded-lg font-semibold transition ${
               activeTab === 'predictions' ? 'bg-emerald-500 text-black' : 'bg-slate-900 text-slate-300'
             }`}
@@ -123,6 +121,7 @@ export default function AdminDashboard() {
           </button>
           <button
             onClick={() => setActiveTab('blog')}
+            type="button"
             className={`px-4 py-2 rounded-lg font-semibold transition ${
               activeTab === 'blog' ? 'bg-emerald-500 text-black' : 'bg-slate-900 text-slate-300'
             }`}
@@ -137,7 +136,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Tab 1: Update Picks */}
         {activeTab === 'predictions' && (
           <form onSubmit={handlePickSubmit} className="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-4">
             <h2 className="text-xl font-bold text-white mb-4">Add Pick / Update Result</h2>
@@ -226,7 +224,6 @@ export default function AdminDashboard() {
           </form>
         )}
 
-        {/* Tab 2: Write Blog Post */}
         {activeTab === 'blog' && (
           <form onSubmit={handleBlogSubmit} className="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-4">
             <h2 className="text-xl font-bold text-white mb-4">Create New Blog Article</h2>
@@ -244,7 +241,7 @@ export default function AdminDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">FEATURED IMAGE URL (Google Flow / OpenArt)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">FEATURED IMAGE URL</label>
               <input
                 type="text"
                 value={imageUrl}
@@ -255,7 +252,7 @@ export default function AdminDashboard() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">ARTICLE CONTENT (Markdown / HTML)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">ARTICLE CONTENT</label>
               <textarea
                 rows={8}
                 value={content}
