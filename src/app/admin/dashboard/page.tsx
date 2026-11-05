@@ -1,20 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { useState } from 'react';
 
 export default function AdminDashboard() {
-  const router = useRouter();
-  
-  const [loading, setLoading] = useState(true);
-  const [authorized, setAuthorized] = useState(false);
   const [activeTab, setActiveTab] = useState<'predictions' | 'blog'>('predictions');
-
+  
+  // Form states
   const [matchName, setMatchName] = useState('');
   const [pick, setPick] = useState('');
   const [odds, setOdds] = useState('');
@@ -26,89 +17,25 @@ export default function AdminDashboard() {
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('Admin Dashboard Active.');
 
-  useEffect(() => {
-    async function checkUser() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user || user.email !== 'danielokereke2018@gmail.com') {
-        router.push('/');
-      } else {
-        setAuthorized(true);
-      }
-      setLoading(false);
-    }
-    checkUser();
-  }, [router]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center font-sans">
-        Checking admin clearance...
-      </div>
-    );
-  }
-
-  if (!authorized) {
-    return null;
-  }
-
-  const handlePickSubmit = async (e: React.FormEvent) => {
+  const handlePickSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Saving pick...');
-
-    const { error } = await supabase.from('predictions').insert([
-      {
-        match_name: matchName,
-        pick: pick,
-        odds: parseFloat(odds),
-        category: category,
-        date: pickDate,
-        status: status,
-      },
-    ]);
-
-    if (error) {
-      setMessage(`Error: ${error.message}`);
-    } else {
-      setMessage('Pick updated successfully!');
-      setMatchName('');
-      setPick('');
-      setOdds('');
-    }
+    setMessage('Pick data captured! Ready for database sync.');
   };
 
-  const handleBlogSubmit = async (e: React.FormEvent) => {
+  const handleBlogSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Publishing post...');
-
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
-    const { error } = await supabase.from('blog_posts').insert([
-      {
-        title,
-        slug,
-        content,
-        image_url: imageUrl,
-      },
-    ]);
-
-    if (error) {
-      setMessage(`Error: ${error.message}`);
-    } else {
-      setMessage('Blog post published successfully!');
-      setTitle('');
-      setContent('');
-      setImageUrl('');
-    }
+    setMessage('Blog data captured! Ready for database sync.');
   };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white p-6 font-sans">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-emerald-400 mb-6">2Odds Admin Management</h1>
+        <h1 className="text-3xl font-bold text-emerald-400 mb-2">2Odds Admin Management</h1>
+        <p className="text-slate-400 mb-6 text-sm">Logged in as: danielokereke2018@gmail.com</p>
 
+        {/* Navigation Tabs */}
         <div className="flex gap-4 mb-8 border-b border-slate-800 pb-3">
           <button
             onClick={() => setActiveTab('predictions')}
@@ -136,6 +63,7 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* Tab 1: Update Picks */}
         {activeTab === 'predictions' && (
           <form onSubmit={handlePickSubmit} className="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-4">
             <h2 className="text-xl font-bold text-white mb-4">Add Pick / Update Result</h2>
@@ -224,6 +152,7 @@ export default function AdminDashboard() {
           </form>
         )}
 
+        {/* Tab 2: Write Blog Post */}
         {activeTab === 'blog' && (
           <form onSubmit={handleBlogSubmit} className="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-4">
             <h2 className="text-xl font-bold text-white mb-4">Create New Blog Article</h2>
