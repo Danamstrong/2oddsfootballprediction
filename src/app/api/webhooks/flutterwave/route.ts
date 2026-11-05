@@ -16,7 +16,7 @@ import { membershipExpiry, parseTxRef, resolveTier } from "@/lib/vip-membership"
  *
  * Configure in the Flutterwave dashboard: Settings → Webhooks → set this
  * route's URL, and set the same "Secret Hash" value as
- * FLUTTERWAVE_SECRET_HASH here.
+ * FLW_SECRET_HASH here (matches FLW_SECRET_KEY's naming).
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,9 +56,9 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 export async function POST(req: Request) {
-  const configuredHash = process.env.FLUTTERWAVE_SECRET_HASH;
+  const configuredHash = process.env.FLW_SECRET_HASH;
   if (!configuredHash) {
-    console.error("[flutterwave webhook] FLUTTERWAVE_SECRET_HASH is not set.");
+    console.error("[flutterwave webhook] FLW_SECRET_HASH is not set.");
     return NextResponse.json({ error: "Webhook not configured" }, { status: 500 });
   }
 
