@@ -1,6 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'predictions' | 'blog'>('predictions');
@@ -17,16 +22,58 @@ export default function AdminDashboard() {
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
 
-  const [message, setMessage] = useState('Admin Dashboard Active.');
+  const [message, setMessage] = useState('');
 
-  const handlePickSubmit = (e: React.FormEvent) => {
+  // Submit Prediction directly to Supabase
+  const handlePickSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Pick data captured! Ready for database sync.');
+    setMessage('Saving pick to database...');
+
+    const { error } = await supabase.from('predictions').insert([
+      {
+        match_name: matchName,
+        pick: pick,
+        odds: parseFloat(odds),
+        category: category,
+        date: pickDate,
+        status: status,
+      },
+    ]);
+
+    if (error) {
+      setMessage(`Error saving pick: ${error.message}`);
+    } else {
+      setMessage('Pick successfully published to live database!');
+      setMatchName('');
+      setPick('');
+      setOdds('');
+    }
   };
 
-  const handleBlogSubmit = (e: React.FormEvent) => {
+  // Submit Blog Post directly to Supabase
+  const handleBlogSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('Blog data captured! Ready for database sync.');
+    setMessage('Publishing blog post...');
+
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+    const { error } = await supabase.from('blog_posts').insert([
+      {
+        title,
+        slug,
+        content,
+        image_url: imageUrl,
+      },
+    ]);
+
+    if (error) {
+      setMessage(`Error publishing blog: ${error.message}`);
+    } else {
+      setMessage('Blog post successfully published to live database!');
+      setTitle('');
+      setContent('');
+      setImageUrl('');
+    }
   };
 
   return (
