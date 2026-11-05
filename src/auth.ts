@@ -32,6 +32,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.EMAIL_FROM ?? `${SITE_NAME} <no-reply@2oddsfootballprediction.com>`,
+      // Outside production, skip the real Resend call entirely and print the
+      // sign-in link to the server console instead — lets magic-link login
+      // be tested locally without a configured Resend API key. Production
+      // always uses the provider's normal send-via-Resend behavior.
+      ...(process.env.NODE_ENV !== "production" && {
+        async sendVerificationRequest({ identifier, url }: { identifier: string; url: string }) {
+          console.log(`\n[dev] Magic sign-in link for ${identifier}:\n${url}\n`);
+        },
+      }),
     }),
   ],
   pages: {

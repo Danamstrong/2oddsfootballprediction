@@ -1,6 +1,7 @@
 import "server-only";
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { OWNER_EMAIL } from "@/lib/owner";
 
 export interface VipStatus {
   isVip: boolean;
@@ -21,6 +22,12 @@ export async function getVipStatusByEmail(
   email: string | null | undefined,
 ): Promise<VipStatus> {
   if (!email) return NOT_VIP;
+
+  // Site owner always has VIP access, independent of the subscriptions
+  // table or any payment state.
+  if (email.toLowerCase() === OWNER_EMAIL) {
+    return { isVip: true, expiresAt: null };
+  }
 
   const { data, error } = await supabaseAdmin()
     .from("subscriptions")

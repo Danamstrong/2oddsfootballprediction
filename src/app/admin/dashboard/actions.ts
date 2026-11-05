@@ -2,9 +2,7 @@
 
 import { auth } from "@/auth";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-
-/** Only this email may write through the admin dashboard actions. */
-const ADMIN_EMAIL = "danielokereke2018@gmail.com";
+import { OWNER_EMAIL } from "@/lib/owner";
 
 /**
  * Re-checked on every call, independent of the page-level gate — a Server
@@ -13,7 +11,7 @@ const ADMIN_EMAIL = "danielokereke2018@gmail.com";
  */
 async function isAdmin(): Promise<boolean> {
   const session = await auth();
-  return (session?.user?.email?.toLowerCase() ?? null) === ADMIN_EMAIL;
+  return (session?.user?.email?.toLowerCase() ?? null) === OWNER_EMAIL;
 }
 
 export interface SubmitPickInput {
